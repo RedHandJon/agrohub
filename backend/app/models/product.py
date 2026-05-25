@@ -1,0 +1,56 @@
+from datetime import datetime, timezone
+from decimal import Decimal
+from sqlalchemy import String, Text, Numeric, Integer, DateTime, ForeignKey, Boolean, Enum as SAEnum
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+import enum
+from app.core.database import Base
+
+
+class ProductCategory(str, enum.Enum):
+    vegetables = "vegetables"
+    fruits = "fruits"
+    grains = "grains"
+    dairy = "dairy"
+    meat = "meat"
+    herbs = "herbs"
+    other = "other"
+
+
+class ProductUnit(str, enum.Enum):
+    kg = "kg"
+    ton = "ton"
+    piece = "piece"
+    liter = "liter"
+    box = "box"
+
+
+class Product(Base):
+    __tablename__ = "products"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    farmer_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    category: Mapped[ProductCategory] = mapped_column(SAEnum(ProductCategory), nullable=False)
+    unit: Mapped[ProductUnit] = mapped_column(SAEnum(ProductUnit), nullable=False, default=ProductUnit.kg)
+    price_per_unit: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    stock_quantity: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False, default=Decimal("0"))
+    min_order_quantity: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False, default=Decimal("0"))
+    weight_per_unit_kg: Mapped[Decimal] = mapped_column(Numeric(10, 3), nullable=False, default=Decimal("1"))
+    volume_per_unit_m3: Mapped[Decimal] = mapped_column(Numeric(10, 4), nullable=False, default=Decimal("0.001"))
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    harvest_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expiry_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+    farmer = relationship("User", lazy="noload")
+    order_items = relationship("OrderItem", back_populates="product", lazy="noload")
