@@ -5,7 +5,7 @@ import { productsApi } from '@/api/products'
 import { useCartStore } from '@/store/cart'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, Filter } from 'lucide-react'
+import { ShoppingCart, Search, Filter } from 'lucide-react'
 import type { Product, ProductCategory } from '@/types'
 
 const CATEGORIES: { value: ProductCategory | ''; label: string }[] = [
@@ -24,22 +24,22 @@ function ProductCard({ product }: { product: Product }) {
   return (
     <div className="rounded-xl border bg-white shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       {product.image_url ? (
-        <img src={product.image_url} alt={product.name} className="h-40 w-full object-cover" />
+        <img src={product.image_url} alt={product.name} className="h-36 w-full object-cover" />
       ) : (
-        <div className="h-40 w-full bg-brand-50 flex items-center justify-center text-brand-300 text-4xl">🌿</div>
+        <div className="h-36 w-full bg-brand-50 flex items-center justify-center text-4xl">🌿</div>
       )}
-      <div className="p-4">
-        <h3 className="font-semibold text-gray-800 mb-1 truncate">{product.name}</h3>
+      <div className="p-3">
+        <h3 className="font-semibold text-gray-800 mb-1 truncate text-sm">{product.name}</h3>
         <p className="text-xs text-gray-400 mb-2 line-clamp-2">{product.description ?? 'Без описания'}</p>
-        <div className="flex items-center justify-between mb-3">
-          <span className="font-bold text-brand-700 text-lg">
+        <div className="flex items-center justify-between mb-2 gap-1 flex-wrap">
+          <span className="font-bold text-brand-700">
             {parseFloat(product.price_per_unit).toLocaleString('ru')} ₽/{product.unit}
           </span>
-          <Badge variant="secondary">{product.category}</Badge>
+          <Badge variant="secondary" className="text-xs">{product.category}</Badge>
         </div>
         <p className="text-xs text-gray-400 mb-3">В наличии: {product.stock_quantity} {product.unit}</p>
-        <Button size="sm" className="w-full gap-2" onClick={() => addItem(product)}>
-          <ShoppingCart className="h-4 w-4" />
+        <Button size="sm" className="w-full gap-1 text-xs" onClick={() => addItem(product)}>
+          <ShoppingCart className="h-3 w-3" />
           В корзину
         </Button>
       </div>
@@ -50,28 +50,38 @@ function ProductCard({ product }: { product: Product }) {
 export default function Catalog() {
   const [searchParams] = useSearchParams()
   const [category, setCategory] = useState<ProductCategory | ''>('')
+  const [search, setSearch] = useState(searchParams.get('search') ?? '')
+  const [searchInput, setSearchInput] = useState(searchParams.get('search') ?? '')
   const [page, setPage] = useState(1)
-
-  const search = searchParams.get('search') ?? undefined
 
   const { data, isLoading } = useQuery({
     queryKey: ['products', category, search, page],
-    queryFn: () => productsApi.list({ category: category || undefined, search, page, size: 20 }),
+    queryFn: () => productsApi.list({ category: category || undefined, search: search || undefined, page, size: 20 }),
   })
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    setSearch(searchInput)
+    setPage(1)
+  }
 
   return (
     <div className="flex gap-6">
-      {/* Sidebar filters */}
+      {/* Sidebar — desktop only */}
       <aside className="hidden md:block w-48 shrink-0">
-        <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <h3 className="font-semibold mb-3 flex items-center gap-2"><Filter className="h-4 w-4" /> Категории</h3>
+        <div className="rounded-xl border bg-white p-4 shadow-sm sticky top-4">
+          <h3 className="font-semibold mb-3 flex items-center gap-2">
+            <Filter className="h-4 w-4" /> Категории
+          </h3>
           <div className="space-y-1">
             {CATEGORIES.map((c) => (
               <button
                 key={c.value}
                 onClick={() => { setCategory(c.value as ProductCategory | ''); setPage(1) }}
                 className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${
-                  category === c.value ? 'bg-brand-100 text-brand-700 font-medium' : 'hover:bg-gray-50 text-gray-700'
+                  category === c.value
+                    ? 'bg-brand-100 text-brand-700 font-medium'
+                    : 'hover:bg-gray-50 text-gray-700'
                 }`}
               >
                 {c.label}
@@ -81,18 +91,57 @@ export default function Catalog() {
         </div>
       </aside>
 
-      {/* Products grid */}
-      <div className="flex-1">
-        {search && <p className="mb-4 text-gray-600">Результаты поиска: <strong>"{search}"</strong></p>}
+      {/* Main content */}
+      <div className="flex-1 min-w-0">
+
+        {/* Search bar */}
+        <form onSubmit={handleSearch} className="flex gap-2 mb-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Поиск товаров..."
+              className="w-full rounded-lg border bg-white pl-9 pr-4 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
+            />
+          </div>
+          <Button type="submit" size="sm" className="shrink-0">Найти</Button>
+        </form>
+
+        {/* Category chips — mobile only */}
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-4 md:hidden scrollbar-none">
+          {CATEGORIES.map((c) => (
+            <button
+              key={c.value}
+              onClick={() => { setCategory(c.value as ProductCategory | ''); setPage(1) }}
+              className={`shrink-0 rounded-full px-3 py-1.5 text-sm font-medium border transition-colors ${
+                category === c.value
+                  ? 'bg-brand-700 text-white border-brand-700'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-brand-400'
+              }`}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+
+        {search && (
+          <p className="mb-4 text-gray-600 text-sm">
+            Результаты поиска: <strong>«{search}»</strong>
+            <button onClick={() => { setSearch(''); setSearchInput('') }} className="ml-2 text-gray-400 hover:text-gray-600">✕</button>
+          </p>
+        )}
+
         {isLoading ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-72 rounded-xl bg-gray-100 animate-pulse" />
+              <div key={i} className="h-64 rounded-xl bg-gray-100 animate-pulse" />
             ))}
           </div>
         ) : (
           <>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {data?.items.map((p) => <ProductCard key={p.id} product={p} />)}
             </div>
             {data?.total === 0 && (
