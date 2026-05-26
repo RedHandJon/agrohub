@@ -54,12 +54,21 @@ export default function OrderDetail() {
 
   const downloadInvoice = async () => {
     const res = await apiClient.get(`/documents/orders/${orderId}/invoice`, { responseType: 'blob' })
-    const url = URL.createObjectURL(new Blob([res.data], { type: String(res.headers['content-type'] ?? 'application/pdf') }))
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `invoice_${orderId}.pdf`
-    a.click()
-    URL.revokeObjectURL(url)
+    const contentType = String(res.headers['content-type'] ?? 'application/pdf')
+    const blob = new Blob([res.data], { type: contentType })
+    const url = URL.createObjectURL(blob)
+    if (contentType.includes('pdf')) {
+      window.open(url, '_blank')
+      setTimeout(() => URL.revokeObjectURL(url), 10_000)
+    } else {
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `invoice_${orderId}.html`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      setTimeout(() => URL.revokeObjectURL(url), 5_000)
+    }
   }
 
   if (isLoading) return <div className="animate-pulse">Загрузка...</div>
