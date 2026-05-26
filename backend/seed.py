@@ -31,7 +31,14 @@ from app.models.review import Notification
 
 
 async def seed():
+    from sqlalchemy import select
     async with AsyncSessionLocal() as db:
+        # Идемпотентность: пропускаем если данные уже есть
+        result = await db.execute(select(User).where(User.email == "admin@agrohub.ru"))
+        if result.scalar_one_or_none():
+            print("⏭️  Seed: данные уже есть, пропускаем")
+            return
+
         print("🌱 Начинаем заполнение БД...")
 
         # ── Пользователи ──────────────────────────────────────────────
