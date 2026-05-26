@@ -23,4 +23,4 @@ RUN chmod +x start.sh
 ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8000
-CMD ["/bin/sh", "start.sh"]
+CMD ["/bin/sh", "/app/start.sh"]
