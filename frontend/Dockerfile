@@ -20,8 +20,9 @@ FROM nginx:alpine
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf.template /nginx.conf.template
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 EXPOSE 80
 ENV PORT=80
-# envsubst '${PORT}' — заменяем только PORT, не трогаем nginx-переменные $uri
-CMD ["/bin/sh", "-c", "envsubst '${PORT}' < /nginx.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+CMD ["/bin/sh", "/app/start.sh"]
