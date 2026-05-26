@@ -54,7 +54,7 @@ export default function OrderDetail() {
 
   const downloadInvoice = async () => {
     const res = await apiClient.get(`/documents/orders/${orderId}/invoice`, { responseType: 'blob' })
-    const url = URL.createObjectURL(new Blob([res.data], { type: res.headers['content-type'] }))
+    const url = URL.createObjectURL(new Blob([res.data], { type: String(res.headers['content-type'] ?? 'application/pdf') }))
     const a = document.createElement('a')
     a.href = url
     a.download = `invoice_${orderId}.pdf`
