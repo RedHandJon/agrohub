@@ -17,12 +17,14 @@ type FormState = {
   min_order_quantity: string
   weight_per_unit_kg: string
   volume_per_unit_m3: string
+  image_url: string
 }
 
 const EMPTY_FORM: FormState = {
   name: '', description: '', category: 'vegetables',
   unit: 'kg', price_per_unit: '', stock_quantity: '',
   min_order_quantity: '0', weight_per_unit_kg: '1', volume_per_unit_m3: '0.001',
+  image_url: '',
 }
 
 export default function FarmerProducts() {
@@ -74,6 +76,7 @@ export default function FarmerProducts() {
       min_order_quantity: p.min_order_quantity,
       weight_per_unit_kg: p.weight_per_unit_kg,
       volume_per_unit_m3: p.volume_per_unit_m3,
+      image_url: p.image_url ?? '',
     })
     setShowForm(true)
   }
@@ -142,6 +145,25 @@ export default function FarmerProducts() {
               <textarea value={form.description} onChange={set('description')} rows={2}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
             </div>
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Фото товара (URL)
+              </label>
+              <input type="url" value={form.image_url} onChange={set('image_url')}
+                placeholder="https://images.unsplash.com/..."
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+              <p className="mt-1 text-xs text-gray-400">
+                Вставьте ссылку на фото. Бесплатные фото:{' '}
+                <a href="https://unsplash.com/s/photos/vegetables" target="_blank" rel="noreferrer" className="text-brand-600 hover:underline">Unsplash</a>
+                {' · '}
+                <a href="https://www.pexels.com/search/vegetables/" target="_blank" rel="noreferrer" className="text-brand-600 hover:underline">Pexels</a>
+              </p>
+              {form.image_url && (
+                <img src={form.image_url} alt="preview"
+                  className="mt-2 h-28 w-full object-cover rounded-md border"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+              )}
+            </div>
           </div>
           <div className="flex gap-3">
             <Button type="submit" disabled={isPending}>
@@ -154,7 +176,12 @@ export default function FarmerProducts() {
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {data?.items.map((p) => (
-          <div key={p.id} className="rounded-xl border bg-white shadow-sm p-4">
+          <div key={p.id} className="rounded-xl border bg-white shadow-sm overflow-hidden">
+            {p.image_url
+              ? <img src={p.image_url} alt={p.name} className="h-32 w-full object-cover" />
+              : <div className="h-32 w-full bg-brand-50 flex items-center justify-center text-4xl">🌿</div>
+            }
+            <div className="p-4">
             <div className="flex items-start justify-between mb-2">
               <p className="font-semibold truncate">{p.name}</p>
               <Badge variant={p.is_active ? 'default' : 'outline'}>
@@ -173,6 +200,7 @@ export default function FarmerProducts() {
                 disabled={deleteMutation.isPending}>
                 <Trash2 className="h-3 w-3" />
               </Button>
+            </div>
             </div>
           </div>
         ))}
