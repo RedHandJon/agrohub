@@ -31,12 +31,22 @@ class Settings(BaseSettings):
 
     @computed_field
     @property
+    def DB_SSL_REQUIRED(self) -> bool:
+        """asyncpg requires ssl via connect_args, not URL param."""
+        raw = self.DATABASE_URL_OVERRIDE or ""
+        return "sslmode=require" in raw or "sslmode=prefer" in raw
+
+    @computed_field
+    @property
     def DATABASE_URL(self) -> str:
         if self.DATABASE_URL_OVERRIDE:
+            import re
             url = self.DATABASE_URL_OVERRIDE
-            # Railway gives postgres:// — replace with asyncpg driver
             url = url.replace("postgres://", "postgresql+asyncpg://", 1)
             url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+            # asyncpg does not support sslmode URL param — strip it
+            url = re.sub(r"[?&]sslmode=[^&]*", "", url)
+            url = re.sub(r"\?$", "", url)
             return url
         return (
             f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
