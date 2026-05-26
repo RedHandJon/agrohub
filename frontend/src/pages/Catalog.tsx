@@ -22,13 +22,13 @@ const CATEGORIES: { value: ProductCategory | ''; label: string }[] = [
 function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore((s) => s.addItem)
   return (
-    <div className="rounded-xl border bg-white shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+    <div className="rounded-xl border bg-white shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col">
       {product.image_url ? (
-        <img src={product.image_url} alt={product.name} className="h-36 w-full object-cover" />
+        <img src={product.image_url} alt={product.name} className="h-48 w-full object-cover" />
       ) : (
-        <div className="h-36 w-full bg-brand-50 flex items-center justify-center text-4xl">🌿</div>
+        <div className="h-48 w-full bg-brand-50 flex items-center justify-center text-4xl">🌿</div>
       )}
-      <div className="p-3">
+      <div className="p-3 flex flex-col flex-1">
         <h3 className="font-semibold text-gray-800 mb-1 truncate text-sm">{product.name}</h3>
         <p className="text-xs text-gray-400 mb-2 line-clamp-2">{product.description ?? 'Без описания'}</p>
         <div className="flex items-center justify-between mb-2 gap-1 flex-wrap">
@@ -38,10 +38,12 @@ function ProductCard({ product }: { product: Product }) {
           <Badge variant="secondary" className="text-xs">{product.category}</Badge>
         </div>
         <p className="text-xs text-gray-400 mb-3">В наличии: {product.stock_quantity} {product.unit}</p>
-        <Button size="sm" className="w-full gap-1 text-xs" onClick={() => addItem(product)}>
-          <ShoppingCart className="h-3 w-3" />
-          В корзину
-        </Button>
+        <div className="mt-auto">
+          <Button size="sm" className="w-full gap-1 text-xs" onClick={() => addItem(product)}>
+            <ShoppingCart className="h-3 w-3" />
+            В корзину
+          </Button>
+        </div>
       </div>
     </div>
   )

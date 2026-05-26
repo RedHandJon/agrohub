@@ -134,7 +134,16 @@ export default function OrderDetail() {
           <tbody className="divide-y">
             {order.items.map((item) => (
               <tr key={item.id}>
-                <td className="px-4 py-3 text-gray-700">Товар #{item.product_id}</td>
+                <td className="px-4 py-3 text-gray-700">
+                  <div className="flex items-center gap-3">
+                    {item.product_image_url
+                      ? <img src={item.product_image_url} alt={item.product_name ?? ''}
+                          className="h-10 w-10 rounded-md object-cover shrink-0 border" />
+                      : <div className="h-10 w-10 rounded-md bg-brand-50 flex items-center justify-center text-lg shrink-0 border">🌿</div>
+                    }
+                    <span>{item.product_name ?? `Товар #${item.product_id}`}</span>
+                  </div>
+                </td>
                 <td className="px-4 py-3 text-right">{parseFloat(item.quantity).toLocaleString('ru')}</td>
                 <td className="px-4 py-3 text-right">{parseFloat(item.unit_price).toLocaleString('ru')} ₽</td>
                 <td className="px-4 py-3 text-right font-medium">{parseFloat(item.total_price).toLocaleString('ru')} ₽</td>

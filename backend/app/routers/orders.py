@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
+from sqlalchemy.orm import selectinload
 from app.core.database import get_db
 from app.core.security import get_current_user, require_roles
 from app.models.order import Order, OrderItem, OrderStatus
@@ -62,7 +63,7 @@ async def create_order(
         select(Order).where(Order.id == order.id)
     )
     order = result.scalar_one()
-    items_result = await db.execute(select(OrderItem).where(OrderItem.order_id == order.id))
+    items_result = await db.execute(select(OrderItem).where(OrderItem.order_id == order.id).options(selectinload(OrderItem.product)))
     order.items = list(items_result.scalars().all())
     return order
 
@@ -98,7 +99,7 @@ async def list_orders(
 
     # Load items for each order
     for order in orders:
-        items_result = await db.execute(select(OrderItem).where(OrderItem.order_id == order.id))
+        items_result = await db.execute(select(OrderItem).where(OrderItem.order_id == order.id).options(selectinload(OrderItem.product)))
         order.items = list(items_result.scalars().all())
 
     return OrderListOut(items=orders, total=total, page=page, size=size)
@@ -117,7 +118,7 @@ async def get_order(
     if current_user.role == "customer" and order.customer_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
 
-    items_result = await db.execute(select(OrderItem).where(OrderItem.order_id == order.id))
+    items_result = await db.execute(select(OrderItem).where(OrderItem.order_id == order.id).options(selectinload(OrderItem.product)))
     order.items = list(items_result.scalars().all())
     return order
 
@@ -137,6 +138,6 @@ async def update_order_status(
     order.status = payload.status
     await db.flush()
 
-    items_result = await db.execute(select(OrderItem).where(OrderItem.order_id == order.id))
+    items_result = await db.execute(select(OrderItem).where(OrderItem.order_id == order.id).options(selectinload(OrderItem.product)))
     order.items = list(items_result.scalars().all())
     return order

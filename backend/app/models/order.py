@@ -62,3 +62,11 @@ class OrderItem(Base):
 
     order = relationship("Order", back_populates="items", lazy="noload")
     product = relationship("Product", back_populates="order_items", lazy="noload")
+
+    @property
+    def product_name(self) -> str | None:
+        return self.product.name if self.product else None
+
+    @property
+    def product_image_url(self) -> str | None:
+        return self.product.image_url if self.product else None

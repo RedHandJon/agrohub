@@ -39,7 +39,7 @@ export default function Orders() {
       {data?.items.map((order) => (
         <Link key={order.id} to={`/orders/${order.id}`}
           className="block rounded-xl border bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <div>
               <p className="font-semibold">Заказ №{order.id}</p>
               <p className="text-sm text-gray-500">{new Date(order.created_at).toLocaleDateString('ru')}</p>
@@ -50,6 +50,16 @@ export default function Orders() {
               <p className="mt-2 font-bold text-brand-700">{parseFloat(order.total_amount).toLocaleString('ru')} ₽</p>
             </div>
           </div>
+          {order.items.some(i => i.product_image_url) && (
+            <div className="flex gap-2 overflow-x-auto">
+              {order.items.map((item) => (
+                item.product_image_url
+                  ? <img key={item.id} src={item.product_image_url} alt={item.product_name ?? ''}
+                      className="h-14 w-14 rounded-md object-cover shrink-0 border" />
+                  : <div key={item.id} className="h-14 w-14 rounded-md bg-brand-50 flex items-center justify-center text-xl shrink-0 border">🌿</div>
+              ))}
+            </div>
+          )}
         </Link>
       ))}
     </div>

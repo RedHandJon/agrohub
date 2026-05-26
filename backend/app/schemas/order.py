@@ -15,6 +15,8 @@ class OrderItemOut(BaseModel):
     quantity: Decimal
     unit_price: Decimal
     total_price: Decimal
+    product_name: str | None = None
+    product_image_url: str | None = None
 
     model_config = {"from_attributes": True}
 

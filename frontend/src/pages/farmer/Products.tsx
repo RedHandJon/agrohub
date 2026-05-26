@@ -178,8 +178,8 @@ export default function FarmerProducts() {
         {data?.items.map((p) => (
           <div key={p.id} className="rounded-xl border bg-white shadow-sm overflow-hidden">
             {p.image_url
-              ? <img src={p.image_url} alt={p.name} className="h-32 w-full object-cover" />
-              : <div className="h-32 w-full bg-brand-50 flex items-center justify-center text-4xl">🌿</div>
+              ? <img src={p.image_url} alt={p.name} className="h-48 w-full object-cover" />
+              : <div className="h-48 w-full bg-brand-50 flex items-center justify-center text-4xl">🌿</div>
             }
             <div className="p-4">
             <div className="flex items-start justify-between mb-2">
