@@ -68,8 +68,9 @@ export default function Home() {
 
       {/* Stats */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {STATS.map(({ value, label }) => (
-          <div key={label} className="rounded-xl border bg-white p-6 text-center shadow-sm">
+        {STATS.map(({ value, label }, i) => (
+          <div key={label} className="rounded-xl border bg-white p-6 text-center shadow-sm animate-slide-up-fade hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
+            style={{ animationDelay: `${i * 80}ms` }}>
             <div className="text-3xl font-bold text-brand-700 mb-1">{value}</div>
             <div className="text-sm text-gray-500">{label}</div>
           </div>
@@ -80,10 +81,11 @@ export default function Home() {
       <section>
         <h2 className="text-2xl font-bold mb-6 text-center">Категории продукции</h2>
         <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-          {CATEGORIES.map(({ emoji, name }) => (
+          {CATEGORIES.map(({ emoji, name }, i) => (
             <Link key={name} to={`/catalog?category=${name.toLowerCase()}`}>
-              <div className="rounded-xl border bg-white p-4 text-center shadow-sm hover:border-brand-400 hover:shadow-md transition-all cursor-pointer">
-                <div className="text-3xl mb-2">{emoji}</div>
+              <div className="group rounded-xl border bg-white p-4 text-center shadow-sm hover:border-brand-400 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer animate-scale-in"
+                style={{ animationDelay: `${i * 60}ms` }}>
+                <div className="text-3xl mb-2 transition-transform duration-300 group-hover:scale-125 group-hover:animate-float inline-block">{emoji}</div>
                 <div className="text-sm font-medium text-gray-700">{name}</div>
               </div>
             </Link>
@@ -96,10 +98,11 @@ export default function Home() {
         <h2 className="text-2xl font-bold mb-2 text-center">Как это работает</h2>
         <p className="text-gray-500 text-center mb-8">Три шага от выбора до доставки</p>
         <div className="grid md:grid-cols-3 gap-6">
-          {HOW_IT_WORKS.map(({ icon: Icon, step, title, desc }) => (
-            <div key={step} className="rounded-xl border bg-white p-6 shadow-sm relative overflow-hidden">
-              <div className="absolute top-4 right-4 text-5xl font-black text-gray-100">{step}</div>
-              <div className="w-12 h-12 rounded-full bg-brand-50 flex items-center justify-center mb-4">
+          {HOW_IT_WORKS.map(({ icon: Icon, step, title, desc }, i) => (
+            <div key={step} className="group rounded-xl border bg-white p-6 shadow-sm relative overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-slide-up-fade"
+              style={{ animationDelay: `${i * 100}ms` }}>
+              <div className="absolute top-4 right-4 text-5xl font-black text-gray-100 transition-all duration-300 group-hover:text-brand-100 group-hover:scale-110">{step}</div>
+              <div className="w-12 h-12 rounded-full bg-brand-50 flex items-center justify-center mb-4 transition-all duration-300 group-hover:bg-brand-100 group-hover:scale-110">
                 <Icon className="h-6 w-6 text-brand-600" />
               </div>
               <h3 className="font-semibold text-lg mb-2">{title}</h3>
@@ -115,9 +118,12 @@ export default function Home() {
           { icon: Leaf, title: 'Свежая продукция', desc: 'Прямые поставки от фермеров без посредников и лишних наценок' },
           { icon: Truck, title: 'Умная доставка', desc: 'VRP-оптимизация маршрутов снижает затраты и время в пути' },
           { icon: BarChart2, title: 'Аналитика', desc: 'Полная отчётность и дашборды для каждой роли в системе' },
-        ].map(({ icon: Icon, title, desc }) => (
-          <div key={title} className="rounded-xl border bg-white p-6 text-center shadow-sm">
-            <Icon className="mx-auto mb-3 h-8 w-8 text-brand-600" />
+        ].map(({ icon: Icon, title, desc }, i) => (
+          <div key={title} className="group rounded-xl border bg-white p-6 text-center shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-slide-up-fade"
+            style={{ animationDelay: `${i * 100}ms` }}>
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-brand-50 mb-3 transition-all duration-300 group-hover:bg-brand-100 group-hover:scale-110">
+              <Icon className="h-7 w-7 text-brand-600" />
+            </div>
             <h3 className="font-semibold text-lg mb-2">{title}</h3>
             <p className="text-gray-500 text-sm">{desc}</p>
           </div>

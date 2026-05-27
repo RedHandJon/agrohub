@@ -43,7 +43,13 @@ export default function FarmerOrders() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['farmer-orders'] }),
   })
 
-  if (isLoading) return <div className="animate-pulse">Загрузка...</div>
+  if (isLoading) return (
+    <div className="space-y-3">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="h-20 rounded-xl skeleton" style={{ animationDelay: `${i * 80}ms` }} />
+      ))}
+    </div>
+  )
 
   const pending = data?.items.filter((o) => o.status === 'pending') ?? []
   const active = data?.items.filter((o) => ['confirmed', 'ready', 'in_transit'].includes(o.status)) ?? []
@@ -53,8 +59,8 @@ export default function FarmerOrders() {
     orders.length > 0 && (
       <div className="space-y-3">
         <h2 className="text-lg font-semibold text-gray-700">{title}</h2>
-        {orders.map((order) => (
-          <div key={order.id} className="rounded-xl border bg-white p-4 shadow-sm">
+        {orders.map((order, i) => (
+          <div key={order.id} className="rounded-xl border bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:border-brand-200 animate-slide-in-left" style={{ animationDelay: `${i * 60}ms` }}>
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
                 <Link to={`/orders/${order.id}`} className="font-semibold hover:underline">

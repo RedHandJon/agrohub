@@ -38,8 +38,12 @@ function RequireAuth({ children, roles }: { children: React.ReactNode; roles?: U
 }
 
 const Spinner = () => (
-  <div className="flex items-center justify-center h-64">
-    <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-700 border-t-transparent" />
+  <div className="flex flex-col items-center justify-center h-64 gap-3">
+    <div className="relative h-10 w-10">
+      <div className="absolute inset-0 rounded-full border-4 border-brand-100" />
+      <div className="absolute inset-0 rounded-full border-4 border-brand-700 border-t-transparent animate-spin" />
+    </div>
+    <span className="text-sm text-gray-400 animate-pulse-soft">Загрузка...</span>
   </div>
 )
 

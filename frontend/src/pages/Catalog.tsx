@@ -22,12 +22,14 @@ const CATEGORIES: { value: ProductCategory | ''; label: string }[] = [
 function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore((s) => s.addItem)
   return (
-    <div className="rounded-xl border bg-white shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col">
-      {product.image_url ? (
-        <img src={product.image_url} alt={product.name} className="h-48 w-full object-cover" />
-      ) : (
-        <div className="h-48 w-full bg-brand-50 flex items-center justify-center text-4xl">🌿</div>
-      )}
+    <div className="group rounded-xl border bg-white shadow-sm overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-brand-200">
+      <div className="overflow-hidden">
+        {product.image_url ? (
+          <img src={product.image_url} alt={product.name} className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        ) : (
+          <div className="h-48 w-full bg-brand-50 flex items-center justify-center text-4xl transition-transform duration-300 group-hover:scale-110">🌿</div>
+        )}
+      </div>
       <div className="p-3 flex flex-col flex-1">
         <h3 className="font-semibold text-gray-800 mb-1 truncate text-sm">{product.name}</h3>
         <p className="text-xs text-gray-400 mb-2 line-clamp-2">{product.description ?? 'Без описания'}</p>
@@ -39,7 +41,7 @@ function ProductCard({ product }: { product: Product }) {
         </div>
         <p className="text-xs text-gray-400 mb-3">В наличии: {product.stock_quantity} {product.unit}</p>
         <div className="mt-auto">
-          <Button size="sm" className="w-full gap-1 text-xs" onClick={() => addItem(product)}>
+          <Button size="sm" className="w-full gap-1 text-xs transition-transform duration-150 active:scale-95" onClick={() => addItem(product)}>
             <ShoppingCart className="h-3 w-3" />
             В корзину
           </Button>
@@ -138,13 +140,17 @@ export default function Catalog() {
         {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-64 rounded-xl bg-gray-100 animate-pulse" />
+              <div key={i} className="h-64 rounded-xl skeleton" />
             ))}
           </div>
         ) : (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {data?.items.map((p) => <ProductCard key={p.id} product={p} />)}
+              {data?.items.map((p, i) => (
+                <div key={p.id} className="animate-scale-in" style={{ animationDelay: `${i * 40}ms` }}>
+                  <ProductCard product={p} />
+                </div>
+              ))}
             </div>
             {data?.total === 0 && (
               <p className="text-center text-gray-400 py-12">Товары не найдены</p>

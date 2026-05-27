@@ -30,15 +30,22 @@ export default function Orders() {
     queryFn: () => ordersApi.list(),
   })
 
-  if (isLoading) return <div className="animate-pulse">Загрузка...</div>
+  if (isLoading) return (
+    <div className="space-y-4">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="h-24 rounded-xl skeleton" style={{ animationDelay: `${i * 100}ms` }} />
+      ))}
+    </div>
+  )
 
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Мои заказы</h1>
       {!data?.items.length && <p className="text-gray-400">Заказов нет</p>}
-      {data?.items.map((order) => (
+      {data?.items.map((order, i) => (
         <Link key={order.id} to={`/orders/${order.id}`}
-          className="block rounded-xl border bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
+          className="block rounded-xl border bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:border-brand-200 animate-slide-in-left"
+          style={{ animationDelay: `${i * 60}ms` }}>
           <div className="flex items-center justify-between mb-3">
             <div>
               <p className="font-semibold">Заказ №{order.id}</p>

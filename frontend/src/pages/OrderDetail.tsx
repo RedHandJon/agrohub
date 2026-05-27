@@ -71,7 +71,13 @@ export default function OrderDetail() {
     }
   }
 
-  if (isLoading) return <div className="animate-pulse">Загрузка...</div>
+  if (isLoading) return (
+    <div className="space-y-4 max-w-2xl mx-auto">
+      <div className="h-10 w-48 rounded-xl skeleton" />
+      <div className="h-32 rounded-xl skeleton" />
+      <div className="h-48 rounded-xl skeleton" />
+    </div>
+  )
   if (!order) return <p className="text-gray-500">Заказ не найден</p>
 
   const canChangeStatus = user && ['farmer', 'logist', 'admin'].includes(user.role)
@@ -132,8 +138,8 @@ export default function OrderDetail() {
             </tr>
           </thead>
           <tbody className="divide-y">
-            {order.items.map((item) => (
-              <tr key={item.id}>
+            {order.items.map((item, i) => (
+              <tr key={item.id} className="animate-slide-in-left" style={{ animationDelay: `${i * 50}ms` }}>
                 <td className="px-4 py-3 text-gray-700">
                   <div className="flex items-center gap-3">
                     {item.product_image_url
