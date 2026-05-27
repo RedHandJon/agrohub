@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { ordersApi } from '@/api/orders'
 import { logisticsApi } from '@/api/logistics'
 import { Button } from '@/components/ui/button'
@@ -23,6 +24,7 @@ L.Marker.prototype.options.icon = L.icon({
 const DEPOT = { lat: 55.751244, lon: 37.618423, address: 'Москва, склад' }
 
 export default function Planner() {
+  usePageTitle('Планировщик маршрутов')
   const qc = useQueryClient()
   const [selectedOrders, setSelectedOrders] = useState<number[]>([])
   const [selectedTripId, setSelectedTripId] = useState<number | null>(null)

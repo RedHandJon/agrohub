@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { productsApi } from '@/api/products'
 import { useCartStore } from '@/store/cart'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, Search, Filter } from 'lucide-react'
+import { ShoppingCart, Search, Filter, Check } from 'lucide-react'
 import type { Product, ProductCategory } from '@/types'
 
 const CATEGORIES: { value: ProductCategory | ''; label: string }[] = [
@@ -21,6 +22,7 @@ const CATEGORIES: { value: ProductCategory | ''; label: string }[] = [
 
 function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore((s) => s.addItem)
+  const inCart = useCartStore((s) => s.items.some((i) => i.product.id === product.id))
   return (
     <div className="group rounded-xl border bg-white shadow-sm overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-brand-200">
       <div className="overflow-hidden">
@@ -41,9 +43,14 @@ function ProductCard({ product }: { product: Product }) {
         </div>
         <p className="text-xs text-gray-400 mb-3">В наличии: {product.stock_quantity} {product.unit}</p>
         <div className="mt-auto">
-          <Button size="sm" className="w-full gap-1 text-xs transition-transform duration-150 active:scale-95" onClick={() => addItem(product)}>
-            <ShoppingCart className="h-3 w-3" />
-            В корзину
+          <Button
+            size="sm"
+            variant={inCart ? 'outline' : 'default'}
+            className={`w-full gap-1 text-xs transition-all duration-200 active:scale-95 ${inCart ? 'opacity-60 border-brand-300 text-brand-600' : ''}`}
+            onClick={() => addItem(product)}
+          >
+            {inCart ? <Check className="h-3 w-3" /> : <ShoppingCart className="h-3 w-3" />}
+            {inCart ? 'В корзине' : 'В корзину'}
           </Button>
         </div>
       </div>
@@ -52,6 +59,7 @@ function ProductCard({ product }: { product: Product }) {
 }
 
 export default function Catalog() {
+  usePageTitle('Каталог товаров')
   const [searchParams] = useSearchParams()
   const [category, setCategory] = useState<ProductCategory | ''>('')
   const [search, setSearch] = useState(searchParams.get('search') ?? '')

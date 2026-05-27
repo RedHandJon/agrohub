@@ -462,6 +462,12 @@ ENVIRONMENT
 
 ---
 
+## Working Rules
+
+> **После каждой реализованной доработки обновлять `docs/TZ.md`** — добавлять запись в раздел «20. История изменений» с описанием что изменено (frontend/backend), какие файлы затронуты, дата.
+
+---
+
 ## Key Design Decisions
 
 1. **Stateless JWT** — No token blocklist yet. Logout is client-side only.

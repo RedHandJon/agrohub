@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import { authApi } from '@/api/auth'
 import { useAuthStore } from '@/store/auth'
 import { Button } from '@/components/ui/button'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { Leaf } from 'lucide-react'
 
 export default function Login() {
+  usePageTitle('Вход')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')

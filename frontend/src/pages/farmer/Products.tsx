@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Pencil, Trash2, X, Eye } from 'lucide-react'
 import type { Product, ProductCategory, ProductUnit } from '@/types'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 type FormState = {
   name: string
@@ -81,6 +82,7 @@ function CardPreview({ form }: { form: FormState }) {
 }
 
 export default function FarmerProducts() {
+  usePageTitle('Мои товары')
   const { user } = useAuthStore()
   const qc = useQueryClient()
   const [showForm, setShowForm] = useState(false)

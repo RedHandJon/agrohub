@@ -38,12 +38,22 @@ function RequireAuth({ children, roles }: { children: React.ReactNode; roles?: U
 }
 
 const Spinner = () => (
-  <div className="flex flex-col items-center justify-center h-64 gap-3">
-    <div className="relative h-10 w-10">
-      <div className="absolute inset-0 rounded-full border-4 border-brand-100" />
-      <div className="absolute inset-0 rounded-full border-4 border-brand-700 border-t-transparent animate-spin" />
+  <div className="flex flex-col items-center justify-center h-64 gap-4">
+    <div className="animate-float drop-shadow-lg">
+      <svg viewBox="0 0 64 64" className="w-16 h-16">
+        <circle cx="32" cy="32" r="32" fill="#2d5a1b" />
+        <ellipse cx="28" cy="28" rx="12" ry="16" fill="#6ab52e" transform="rotate(-20 28 28)" />
+        <ellipse cx="36" cy="28" rx="12" ry="16" fill="#8ecb4f" transform="rotate(20 36 28)" />
+        <line x1="32" y1="50" x2="32" y2="22" stroke="#2d5a1b" strokeWidth="2" strokeLinecap="round" />
+      </svg>
     </div>
-    <span className="text-sm text-gray-400 animate-pulse-soft">Загрузка...</span>
+    <div className="flex gap-1.5">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="w-2 h-2 rounded-full bg-brand-400 animate-bounce"
+          style={{ animationDelay: `${i * 150}ms` }} />
+      ))}
+    </div>
+    <span className="text-sm font-medium text-brand-700 tracking-wide">AgroHub Logistic</span>
   </div>
 )
 

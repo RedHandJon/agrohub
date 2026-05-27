@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Leaf, Truck, BarChart2, ShoppingCart, MapPin, Star, ArrowRight, Users } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 const STATS = [
   { value: '200+', label: 'Товаров в каталоге' },
@@ -26,6 +27,7 @@ const CATEGORIES = [
 ]
 
 export default function Home() {
+  usePageTitle('')
   const { user } = useAuthStore()
 
   return (

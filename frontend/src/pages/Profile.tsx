@@ -1,5 +1,6 @@
 import { useAuthStore } from '@/store/auth'
 import { useNavigate } from 'react-router-dom'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { User, Mail, Phone, LogOut, ShieldCheck } from 'lucide-react'
@@ -13,6 +14,7 @@ const ROLE_LABELS: Record<string, string> = {
 }
 
 export default function Profile() {
+  usePageTitle('Профиль')
   const { user, clearAuth } = useAuthStore()
   const navigate = useNavigate()
 

@@ -1114,3 +1114,57 @@ QR-код фермера содержит JSON с HMAC-подписью:
 | **Background Sync** | API Service Worker для отложенной отправки данных при появлении сети |
 | **APScheduler** | Python-библиотека для периодических задач (замена cron) |
 | **FFD** | First Fit Decreasing — алгоритм жадной упаковки |
+
+---
+
+## 20. История изменений
+
+### v1.1 — 27.05.2026
+
+#### Фронтенд — UI/UX
+
+**Анимации:**
+- Добавлен хук `usePageTitle` — динамический `document.title` для каждой страницы
+- Кастомный `favicon.svg` — SVG-иконка с листом в зелёном круге (brand-700)
+- Мета-теги: `description`, `keywords`, `author`, Open Graph, Twitter Card в `index.html`
+- Переход между страницами: `MainLayout` перемонтирует `<main key={pathname}>` с анимацией `slide-up-fade`
+- Карточки товаров: `hover:-translate-y-1.5`, `hover:shadow-xl`, зум фото через `group-hover:scale-105`
+- Кнопка «В корзину»: `active:scale-95`
+- Скелетон-загрузка (`shimmer`) вместо `animate-pulse` на всех списках и детальных страницах
+- Стаггер появления карточек/строк через `animationDelay`
+- Tailwind: добавлены keyframes `slide-up-fade`, `slide-in-left`, `scale-in`, `shimmer`, `float`
+
+**Страница фермера — управление товарами (`/farmer/products`):**
+- Живой предпросмотр карточки товара в реальном времени рядом с формой редактирования
+- Компонент `CardPreview` показывает актуальные данные пока фермер заполняет форму
+- На десктопе — `sticky`-превью справа, на мобиле — снизу
+
+**Каталог (`/catalog`):**
+- Высота фото карточки увеличена: `h-36 → h-48`
+- Кнопка «В корзину» прижата к нижнему краю карточки через `mt-auto` + `flex flex-col flex-1`
+
+**Заказы покупателя (`/orders`, `/orders/:id`):**
+- В списке заказов — горизонтальная лента превью фото товаров под каждым заказом
+- В детальном заказе — фото и название товара в строке таблицы вместо «Товар #ID»
+
+#### Бэкенд
+
+**Схема `OrderItemOut` (orders/schemas):**
+- Добавлены поля `product_name: str | None` и `product_image_url: str | None`
+- Модель `OrderItem` дополнена `@property product_name` и `@property product_image_url`
+- Все запросы позиций заказа используют `selectinload(OrderItem.product)` для подгрузки продукта
+
+**VRP алгоритм (`services/vrp.py`):**
+- Убраны redundant PICKUP waypoints с координатами депо
+- Маршрут теперь: `DEPOT → DROPOFF₁ → DROPOFF₂ → ...` вместо `DEPOT → PICKUP → DROPOFF → PICKUP → DROPOFF`
+- Для 1 заказа: 2 точки (было 3), для N заказов: N+1 точек (было 2N+1)
+
+**Деплой (Railway):**
+- Конфигурация `railway.toml` для backend и frontend
+- `backend/start.sh`: миграции + seed + uvicorn на `$PORT`
+- Поддержка `DATABASE_URL` с `sslmode=require` (asyncpg + `connect_args`)
+- Frontend: nginx на порту 80, сборка с `ARG VITE_API_URL`
+- Удалены неиспользуемые зависимости: `ortools`, `geoalchemy2`
+
+#### Типы фронтенда (`src/types/index.ts`)
+- `OrderItem`: добавлены опциональные поля `product_name?: string`, `product_image_url?: string`

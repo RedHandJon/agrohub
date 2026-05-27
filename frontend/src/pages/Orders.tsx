@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { ordersApi } from '@/api/orders'
 import { Badge } from '@/components/ui/badge'
 import type { OrderStatus } from '@/types'
@@ -25,6 +26,7 @@ const STATUS_VARIANTS: Record<OrderStatus, 'default' | 'secondary' | 'destructiv
 }
 
 export default function Orders() {
+  usePageTitle('Мои заказы')
   const { data, isLoading } = useQuery({
     queryKey: ['orders'],
     queryFn: () => ordersApi.list(),

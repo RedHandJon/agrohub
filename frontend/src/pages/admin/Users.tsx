@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/api/client'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import type { User, UserRole } from '@/types'
@@ -29,6 +30,7 @@ const ROLE_VARIANTS: Record<UserRole, 'default' | 'secondary' | 'outline'> = {
 }
 
 export default function AdminUsers() {
+  usePageTitle('Пользователи')
   const qc = useQueryClient()
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState<UserRole | ''>('')

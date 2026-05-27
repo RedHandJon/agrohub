@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/api/client'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
 const COLORS = ['#2d5a1b', '#4f9a1f', '#6ab52e', '#8ecb4f', '#b8e08a', '#ddf0c4', '#f0f8e8']
 
 export default function AdminAnalytics() {
+  usePageTitle('Аналитика')
   const { data: summary } = useQuery({
     queryKey: ['analytics-summary'],
     queryFn: () => apiClient.get('/analytics/summary').then((r) => r.data),

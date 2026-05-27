@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { authApi } from '@/api/auth'
 import { useAuthStore } from '@/store/auth'
 import { Button } from '@/components/ui/button'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { Leaf } from 'lucide-react'
 import type { UserRole } from '@/types'
 
@@ -14,6 +15,7 @@ const ROLES: { value: UserRole; label: string }[] = [
 ]
 
 export default function Register() {
+  usePageTitle('Регистрация')
   const [form, setForm] = useState({ email: '', full_name: '', password: '', phone: '', role: 'customer' as UserRole })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { ordersApi } from '@/api/orders'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -26,6 +27,7 @@ const STATUS_VARIANTS: Record<OrderStatus, 'default' | 'secondary' | 'destructiv
 }
 
 export default function FarmerOrders() {
+  usePageTitle('Заказы')
   const qc = useQueryClient()
 
   const { data, isLoading } = useQuery({

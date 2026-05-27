@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { useCartStore } from '@/store/cart'
 import { useAuthStore } from '@/store/auth'
 import { ordersApi } from '@/api/orders'
@@ -7,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Trash2, ShoppingCart } from 'lucide-react'
 
 export default function Cart() {
+  usePageTitle('Корзина')
   const { items, removeItem, updateQuantity, clearCart, totalAmount } = useCartStore()
   const { user } = useAuthStore()
   const navigate = useNavigate()
