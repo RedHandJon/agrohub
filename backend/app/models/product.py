@@ -31,8 +31,14 @@ class Product(Base):
     farmer_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
-    category: Mapped[ProductCategory] = mapped_column(SAEnum(ProductCategory), nullable=False)
-    unit: Mapped[ProductUnit] = mapped_column(SAEnum(ProductUnit), nullable=False, default=ProductUnit.kg)
+    category: Mapped[ProductCategory] = mapped_column(
+        SAEnum(ProductCategory, values_callable=lambda obj: [e.value for e in obj]), nullable=False
+    )
+    unit: Mapped[ProductUnit] = mapped_column(
+        SAEnum(ProductUnit, values_callable=lambda obj: [e.value for e in obj]),
+        nullable=False,
+        default=ProductUnit.kg,
+    )
     price_per_unit: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     stock_quantity: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False, default=Decimal("0"))
     min_order_quantity: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False, default=Decimal("0"))

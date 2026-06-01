@@ -28,9 +28,15 @@ class Order(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     customer_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"), nullable=False)
     delivery_location_id: Mapped[int | None] = mapped_column(ForeignKey("locations.id"), nullable=True)
-    status: Mapped[OrderStatus] = mapped_column(SAEnum(OrderStatus), default=OrderStatus.pending, nullable=False)
+    status: Mapped[OrderStatus] = mapped_column(
+        SAEnum(OrderStatus, values_callable=lambda obj: [e.value for e in obj]),
+        default=OrderStatus.pending,
+        nullable=False,
+    )
     payment_status: Mapped[PaymentStatus] = mapped_column(
-        SAEnum(PaymentStatus), default=PaymentStatus.unpaid, nullable=False
+        SAEnum(PaymentStatus, values_callable=lambda obj: [e.value for e in obj]),
+        default=PaymentStatus.unpaid,
+        nullable=False,
     )
     total_amount: Mapped[Decimal] = mapped_column(Numeric(14, 2), nullable=False, default=Decimal("0"))
     delivery_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
