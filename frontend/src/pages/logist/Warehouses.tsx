@@ -4,6 +4,7 @@ import { apiClient } from '@/api/client'
 import { Button } from '@/components/ui/button'
 import { Plus, Trash2, Warehouse, X } from 'lucide-react'
 import { usePageTitle } from '@/hooks/usePageTitle'
+import { AddressInput, searchNominatim } from '@/components/ui/AddressInput'
 import type { Warehouse as WarehouseType } from '@/types'
 
 const warehousesApi = {
@@ -13,29 +14,14 @@ const warehousesApi = {
   delete: (id: number) => apiClient.delete(`/warehouses/${id}`),
 }
 
-async function geocode(address: string): Promise<{ lat: number; lon: number } | null> {
-  try {
-    const resp = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`,
-      { headers: { 'Accept-Language': 'ru' } }
-    )
-    const data = await resp.json()
-    if (data.length > 0) {
-      return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) }
-    }
-  } catch {
-    // ignore
-  }
-  return null
-}
-
 export default function LogistWarehouses() {
   usePageTitle('Склады')
   const qc = useQueryClient()
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
-  const [geocodeError, setGeocodeError] = useState('')
+  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null)
+  const [formError, setFormError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
   const { data: warehouses, isLoading } = useQuery({
@@ -48,23 +34,40 @@ export default function LogistWarehouses() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['warehouses'] }),
   })
 
+  const closeForm = () => {
+    setShowForm(false)
+    setName('')
+    setAddress('')
+    setCoords(null)
+    setFormError('')
+  }
+
+  const handleAddressChange = (val: string, c?: { lat: number; lon: number }) => {
+    setAddress(val)
+    setCoords(c ?? null)
+    setFormError('')
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setGeocodeError('')
+    setFormError('')
     setSubmitting(true)
+
     try {
-      const coords = await geocode(address)
-      if (!coords) {
-        setGeocodeError('Адрес не найден. Попробуйте уточнить.')
-        return
+      let finalCoords = coords
+      if (!finalCoords) {
+        const results = await searchNominatim(address)
+        if (!results.length) {
+          setFormError('Адрес не найден. Выберите вариант из подсказок.')
+          return
+        }
+        finalCoords = { lat: parseFloat(results[0].lat), lon: parseFloat(results[0].lon) }
       }
-      await warehousesApi.create({ name, address, lat: coords.lat, lon: coords.lon })
+      await warehousesApi.create({ name, address, lat: finalCoords.lat, lon: finalCoords.lon })
       qc.invalidateQueries({ queryKey: ['warehouses'] })
-      setShowForm(false)
-      setName('')
-      setAddress('')
+      closeForm()
     } catch {
-      setGeocodeError('Ошибка при создании склада')
+      setFormError('Ошибка при создании склада')
     } finally {
       setSubmitting(false)
     }
@@ -85,7 +88,7 @@ export default function LogistWarehouses() {
         <div className="rounded-xl border bg-white p-6 shadow-sm animate-scale-in">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold">Новый склад</h2>
-            <button type="button" onClick={() => { setShowForm(false); setGeocodeError('') }}>
+            <button type="button" onClick={closeForm}>
               <X className="h-4 w-4 text-gray-400" />
             </button>
           </div>
@@ -94,26 +97,31 @@ export default function LogistWarehouses() {
               <label className="mb-1 block text-sm font-medium text-gray-700">Название</label>
               <input
                 type="text" value={name} onChange={(e) => setName(e.target.value)} required
+                placeholder="Склад №1 / Центральный..."
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">Адрес</label>
-              <input
-                type="text" value={address} onChange={(e) => setAddress(e.target.value)} required
-                placeholder="Например: Москва, ул. Ленина, 1"
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              <AddressInput
+                value={address}
+                onChange={handleAddressChange}
+                placeholder="Начните вводить адрес..."
+                required
               />
-              <p className="mt-1 text-xs text-gray-400">Координаты определяются автоматически по адресу</p>
+              <p className="mt-1 text-xs">
+                {coords
+                  ? <span className="text-green-600">✓ Координаты определены ({coords.lat.toFixed(4)}, {coords.lon.toFixed(4)})</span>
+                  : <span className="text-gray-400">Выберите адрес из подсказок — координаты определятся автоматически</span>
+                }
+              </p>
             </div>
-            {geocodeError && <p className="text-sm text-red-600">{geocodeError}</p>}
+            {formError && <p className="text-sm text-red-600">{formError}</p>}
             <div className="flex gap-3">
               <Button type="submit" disabled={submitting}>
                 {submitting ? 'Создаём...' : 'Создать'}
               </Button>
-              <Button type="button" variant="outline" onClick={() => { setShowForm(false); setGeocodeError('') }}>
-                Отмена
-              </Button>
+              <Button type="button" variant="outline" onClick={closeForm}>Отмена</Button>
             </div>
           </form>
         </div>
@@ -144,9 +152,7 @@ export default function LogistWarehouses() {
               </button>
             </div>
             <p className="text-sm text-gray-500">{w.address}</p>
-            <p className="text-xs text-gray-400">
-              {w.lat.toFixed(4)}, {w.lon.toFixed(4)}
-            </p>
+            <p className="text-xs text-gray-400">{w.lat.toFixed(4)}, {w.lon.toFixed(4)}</p>
           </div>
         ))}
       </div>

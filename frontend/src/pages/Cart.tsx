@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/auth'
 import { ordersApi } from '@/api/orders'
 import { apiClient } from '@/api/client'
 import { Button } from '@/components/ui/button'
+import { AddressInput, searchNominatim } from '@/components/ui/AddressInput'
 import { Trash2, ShoppingCart, Plus, MapPin, X } from 'lucide-react'
 import type { Location } from '@/types'
 
@@ -15,18 +16,6 @@ const locationsApi = {
   create: (data: { label: string; address: string; lat: number; lon: number }) =>
     apiClient.post<Location>('/locations', data).then((r) => r.data),
   delete: (id: number) => apiClient.delete(`/locations/${id}`),
-}
-
-async function geocode(address: string): Promise<{ lat: number; lon: number } | null> {
-  try {
-    const resp = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`,
-      { headers: { 'Accept-Language': 'ru' } }
-    )
-    const data = await resp.json()
-    if (data.length > 0) return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) }
-  } catch { /* ignore */ }
-  return null
 }
 
 export default function Cart() {
@@ -41,6 +30,7 @@ export default function Cart() {
   const [showNewAddr, setShowNewAddr] = useState(false)
   const [newLabel, setNewLabel] = useState('')
   const [newAddress, setNewAddress] = useState('')
+  const [newAddrCoords, setNewAddrCoords] = useState<{ lat: number; lon: number } | null>(null)
   const [addrError, setAddrError] = useState('')
   const [addrSaving, setAddrSaving] = useState(false)
 
@@ -58,19 +48,30 @@ export default function Cart() {
     },
   })
 
+  const handleNewAddressChange = (val: string, c?: { lat: number; lon: number }) => {
+    setNewAddress(val)
+    setNewAddrCoords(c ?? null)
+    setAddrError('')
+  }
+
   const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault()
     setAddrError('')
     setAddrSaving(true)
     try {
-      const coords = await geocode(newAddress)
-      if (!coords) { setAddrError('Адрес не найден. Уточните запрос.'); return }
+      let coords = newAddrCoords
+      if (!coords) {
+        const results = await searchNominatim(newAddress)
+        if (!results.length) { setAddrError('Адрес не найден. Выберите из подсказок.'); return }
+        coords = { lat: parseFloat(results[0].lat), lon: parseFloat(results[0].lon) }
+      }
       const loc = await locationsApi.create({ label: newLabel, address: newAddress, lat: coords.lat, lon: coords.lon })
       qc.invalidateQueries({ queryKey: ['locations'] })
       setSelectedLocationId(loc.id)
       setShowNewAddr(false)
       setNewLabel('')
       setNewAddress('')
+      setNewAddrCoords(null)
     } catch {
       setAddrError('Ошибка при сохранении адреса')
     } finally {
@@ -187,10 +188,12 @@ export default function Cart() {
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-gray-700">Адрес доставки</label>
-                <input
-                  type="text" value={newAddress} onChange={(e) => setNewAddress(e.target.value)} required
-                  placeholder="Москва, ул. Ленина, д. 1"
-                  className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                <AddressInput
+                  value={newAddress}
+                  onChange={handleNewAddressChange}
+                  placeholder="Начните вводить адрес..."
+                  required
+                  inputClassName="w-full rounded-md border border-gray-300 px-3 py-1.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
               {addrError && <p className="text-xs text-red-600">{addrError}</p>}
