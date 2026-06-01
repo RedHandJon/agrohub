@@ -11,13 +11,13 @@ import type { Product, ProductCategory } from '@/types'
 
 const CATEGORIES: { value: ProductCategory | ''; label: string }[] = [
   { value: '', label: 'Все' },
-  { value: 'vegetables', label: 'Овощи' },
-  { value: 'fruits', label: 'Фрукты' },
-  { value: 'grains', label: 'Зерно' },
-  { value: 'dairy', label: 'Молочное' },
-  { value: 'meat', label: 'Мясо' },
-  { value: 'herbs', label: 'Зелень' },
-  { value: 'other', label: 'Прочее' },
+  { value: 'овощи', label: 'Овощи' },
+  { value: 'фрукты', label: 'Фрукты' },
+  { value: 'зерно', label: 'Зерно' },
+  { value: 'молочное', label: 'Молочное' },
+  { value: 'мясо', label: 'Мясо' },
+  { value: 'зелень', label: 'Зелень' },
+  { value: 'прочее', label: 'Прочее' },
 ]
 
 function ProductCard({ product }: { product: Product }) {

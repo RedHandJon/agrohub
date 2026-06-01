@@ -6,23 +6,23 @@ from app.core.database import Base
 
 
 class TripStatus(str, enum.Enum):
-    planned = "planned"
-    in_progress = "in_progress"
-    completed = "completed"
-    cancelled = "cancelled"
+    planned = "запланирован"
+    in_progress = "в_пути"
+    completed = "завершён"
+    cancelled = "отменён"
 
 
 class WaypointStatus(str, enum.Enum):
-    pending = "pending"
-    arrived = "arrived"
-    completed = "completed"
-    skipped = "skipped"
+    pending = "ожидание"
+    arrived = "прибыл"
+    completed = "завершено"
+    skipped = "пропущено"
 
 
 class WaypointType(str, enum.Enum):
-    pickup = "pickup"
-    dropoff = "dropoff"
-    depot = "depot"
+    pickup = "загрузка"
+    dropoff = "доставка"
+    depot = "склад"
 
 
 class Trip(Base):

@@ -6,23 +6,23 @@ import { Badge } from '@/components/ui/badge'
 import type { OrderStatus } from '@/types'
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
-  draft: 'Черновик',
-  pending: 'Ожидает',
-  confirmed: 'Подтверждён',
-  ready: 'Готов',
-  in_transit: 'В пути',
-  delivered: 'Доставлен',
-  cancelled: 'Отменён',
+  черновик: 'Черновик',
+  ожидает: 'Ожидает',
+  подтверждён: 'Подтверждён',
+  готов: 'Готов',
+  в_пути: 'В пути',
+  доставлен: 'Доставлен',
+  отменён: 'Отменён',
 }
 
 const STATUS_VARIANTS: Record<OrderStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  draft: 'outline',
-  pending: 'secondary',
-  confirmed: 'secondary',
-  ready: 'default',
-  in_transit: 'default',
-  delivered: 'default',
-  cancelled: 'destructive',
+  черновик: 'outline',
+  ожидает: 'secondary',
+  подтверждён: 'secondary',
+  готов: 'default',
+  в_пути: 'default',
+  доставлен: 'default',
+  отменён: 'destructive',
 }
 
 export default function Orders() {

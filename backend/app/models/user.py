@@ -6,11 +6,11 @@ from app.core.database import Base
 
 
 class UserRole(str, enum.Enum):
-    customer = "customer"
-    farmer = "farmer"
-    logist = "logist"
-    driver = "driver"
-    admin = "admin"
+    customer = "покупатель"
+    farmer = "фермер"
+    logist = "логист"
+    driver = "водитель"
+    admin = "администратор"
 
 
 class User(Base):

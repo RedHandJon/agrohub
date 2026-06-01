@@ -7,19 +7,19 @@ from app.core.database import Base
 
 
 class OrderStatus(str, enum.Enum):
-    draft = "draft"
-    pending = "pending"
-    confirmed = "confirmed"
-    ready = "ready"
-    in_transit = "in_transit"
-    delivered = "delivered"
-    cancelled = "cancelled"
+    draft = "черновик"
+    pending = "ожидает"
+    confirmed = "подтверждён"
+    ready = "готов"
+    in_transit = "в_пути"
+    delivered = "доставлен"
+    cancelled = "отменён"
 
 
 class PaymentStatus(str, enum.Enum):
-    unpaid = "unpaid"
-    paid = "paid"
-    refunded = "refunded"
+    unpaid = "не_оплачен"
+    paid = "оплачен"
+    refunded = "возврат"
 
 
 class Order(Base):

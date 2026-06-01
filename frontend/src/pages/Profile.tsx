@@ -6,11 +6,11 @@ import { Badge } from '@/components/ui/badge'
 import { User, Mail, Phone, LogOut, ShieldCheck } from 'lucide-react'
 
 const ROLE_LABELS: Record<string, string> = {
-  customer: 'Покупатель',
-  farmer: 'Фермер',
-  logist: 'Логист',
-  driver: 'Водитель',
-  admin: 'Администратор',
+  покупатель: 'Покупатель',
+  фермер: 'Фермер',
+  логист: 'Логист',
+  водитель: 'Водитель',
+  администратор: 'Администратор',
 }
 
 export default function Profile() {

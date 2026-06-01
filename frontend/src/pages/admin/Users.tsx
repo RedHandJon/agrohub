@@ -14,19 +14,19 @@ interface UserListResponse {
 }
 
 const ROLE_LABELS: Record<UserRole, string> = {
-  customer: 'Покупатель',
-  farmer: 'Фермер',
-  logist: 'Логист',
-  driver: 'Водитель',
-  admin: 'Администратор',
+  покупатель: 'Покупатель',
+  фермер: 'Фермер',
+  логист: 'Логист',
+  водитель: 'Водитель',
+  администратор: 'Администратор',
 }
 
 const ROLE_VARIANTS: Record<UserRole, 'default' | 'secondary' | 'outline'> = {
-  customer: 'outline',
-  farmer: 'secondary',
-  logist: 'secondary',
-  driver: 'default',
-  admin: 'default',
+  покупатель: 'outline',
+  фермер: 'secondary',
+  логист: 'secondary',
+  водитель: 'default',
+  администратор: 'default',
 }
 
 export default function AdminUsers() {

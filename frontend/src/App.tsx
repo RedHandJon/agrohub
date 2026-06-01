@@ -77,28 +77,28 @@ export default function App() {
 
           {/* Farmer */}
           <Route path="/farmer/products" element={
-            <RequireAuth roles={['farmer', 'admin']}><FarmerProducts /></RequireAuth>
+            <RequireAuth roles={['фермер', 'администратор']}><FarmerProducts /></RequireAuth>
           } />
           <Route path="/farmer/orders" element={
-            <RequireAuth roles={['farmer', 'admin']}><FarmerOrders /></RequireAuth>
+            <RequireAuth roles={['фермер', 'администратор']}><FarmerOrders /></RequireAuth>
           } />
 
           {/* Logist */}
           <Route path="/logist/planner" element={
-            <RequireAuth roles={['logist', 'admin']}><Planner /></RequireAuth>
+            <RequireAuth roles={['логист', 'администратор']}><Planner /></RequireAuth>
           } />
 
           {/* Driver */}
           <Route path="/driver/trips" element={
-            <RequireAuth roles={['driver']}><DriverTripList /></RequireAuth>
+            <RequireAuth roles={['водитель']}><DriverTripList /></RequireAuth>
           } />
 
           {/* Admin */}
           <Route path="/admin/analytics" element={
-            <RequireAuth roles={['admin']}><AdminAnalytics /></RequireAuth>
+            <RequireAuth roles={['администратор']}><AdminAnalytics /></RequireAuth>
           } />
           <Route path="/admin/users" element={
-            <RequireAuth roles={['admin']}><AdminUsers /></RequireAuth>
+            <RequireAuth roles={['администратор']}><AdminUsers /></RequireAuth>
           } />
 
           <Route path="*" element={<Navigate to="/" replace />} />

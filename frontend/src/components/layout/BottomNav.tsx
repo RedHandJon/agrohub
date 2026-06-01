@@ -10,23 +10,23 @@ export function BottomNav() {
   if (!user) return null
 
   const links = {
-    customer: [
+    покупатель: [
       { to: '/', icon: Home, label: 'Главная' },
       { to: '/catalog', icon: ShoppingBag, label: 'Каталог' },
       { to: '/orders', icon: MapPin, label: 'Заказы' },
     ],
-    farmer: [
+    фермер: [
       { to: '/farmer/products', icon: ShoppingBag, label: 'Товары' },
       { to: '/farmer/orders', icon: MapPin, label: 'Заказы' },
     ],
-    logist: [
+    логист: [
       { to: '/logist/planner', icon: MapPin, label: 'Планировщик' },
       { to: '/logist/trips', icon: Truck, label: 'Рейсы' },
     ],
-    driver: [
+    водитель: [
       { to: '/driver/trips', icon: Truck, label: 'Рейсы' },
     ],
-    admin: [
+    администратор: [
       { to: '/admin/users', icon: Users, label: 'Пользователи' },
       { to: '/admin/analytics', icon: BarChart2, label: 'Аналитика' },
     ],

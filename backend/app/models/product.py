@@ -7,21 +7,21 @@ from app.core.database import Base
 
 
 class ProductCategory(str, enum.Enum):
-    vegetables = "vegetables"
-    fruits = "fruits"
-    grains = "grains"
-    dairy = "dairy"
-    meat = "meat"
-    herbs = "herbs"
-    other = "other"
+    vegetables = "овощи"
+    fruits = "фрукты"
+    grains = "зерно"
+    dairy = "молочное"
+    meat = "мясо"
+    herbs = "зелень"
+    other = "прочее"
 
 
 class ProductUnit(str, enum.Enum):
-    kg = "kg"
-    ton = "ton"
-    piece = "piece"
-    liter = "liter"
-    box = "box"
+    kg = "кг"
+    ton = "тонна"
+    piece = "шт"
+    liter = "л"
+    box = "ящик"
 
 
 class Product(Base):

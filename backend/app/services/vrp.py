@@ -79,7 +79,7 @@ def ffd_bin_packing(orders: list[OrderLoad], vehicles: list[VehicleCapacity]) ->
         waypoints = []
         for order in assigned:
             waypoints.append({
-                "type": "dropoff",
+                "type": "доставка",
                 "order_id": order.order_id,
                 "lat": order.delivery_lat,
                 "lon": order.delivery_lon,
