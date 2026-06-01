@@ -32,7 +32,11 @@ class Trip(Base):
     vehicle_id: Mapped[int] = mapped_column(ForeignKey("vehicles.id", ondelete="RESTRICT"), nullable=False)
     driver_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     planned_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    status: Mapped[TripStatus] = mapped_column(SAEnum(TripStatus), default=TripStatus.planned, nullable=False)
+    status: Mapped[TripStatus] = mapped_column(
+        SAEnum(TripStatus, values_callable=lambda obj: [e.value for e in obj]),
+        default=TripStatus.planned,
+        nullable=False,
+    )
     route_polyline: Mapped[str | None] = mapped_column(Text, nullable=True)
     total_distance_km: Mapped[float | None] = mapped_column(nullable=True)
     estimated_duration_min: Mapped[int | None] = mapped_column(nullable=True)
@@ -59,8 +63,14 @@ class Waypoint(Base):
     trip_id: Mapped[int] = mapped_column(ForeignKey("trips.id", ondelete="CASCADE"), nullable=False)
     order_id: Mapped[int | None] = mapped_column(ForeignKey("orders.id", ondelete="SET NULL"), nullable=True)
     sequence: Mapped[int] = mapped_column(Integer, nullable=False)
-    waypoint_type: Mapped[WaypointType] = mapped_column(SAEnum(WaypointType), nullable=False)
-    status: Mapped[WaypointStatus] = mapped_column(SAEnum(WaypointStatus), default=WaypointStatus.pending, nullable=False)
+    waypoint_type: Mapped[WaypointType] = mapped_column(
+        SAEnum(WaypointType, values_callable=lambda obj: [e.value for e in obj]), nullable=False
+    )
+    status: Mapped[WaypointStatus] = mapped_column(
+        SAEnum(WaypointStatus, values_callable=lambda obj: [e.value for e in obj]),
+        default=WaypointStatus.pending,
+        nullable=False,
+    )
     lat: Mapped[float] = mapped_column(nullable=False)
     lon: Mapped[float] = mapped_column(nullable=False)
     address: Mapped[str] = mapped_column(Text, nullable=False)
