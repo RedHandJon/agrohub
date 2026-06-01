@@ -5,6 +5,7 @@ from sqlalchemy import select
 from app.core.database import get_db
 from app.core.security import require_roles
 from app.models.trip import Trip, Waypoint, WaypointStatus, TripStatus
+from app.models.order import Order, OrderStatus
 from app.models.user import User
 from app.schemas.logistics import TripOut, WaypointOut, WaypointArriveRequest, WaypointCompleteRequest
 
@@ -127,6 +128,14 @@ async def complete_trip(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Не все точки подтверждены")
 
     trip.status = TripStatus.completed
+
+    # Обновить статус всех заказов из доставленных точек → "доставлен"
+    order_ids = {wp.order_id for wp in waypoints if wp.order_id and wp.status == WaypointStatus.completed}
+    if order_ids:
+        orders_result = await db.execute(select(Order).where(Order.id.in_(order_ids)))
+        for order in orders_result.scalars().all():
+            order.status = OrderStatus.delivered
+
     await db.flush()
     trip.waypoints = waypoints
     return trip
