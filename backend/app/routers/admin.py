@@ -29,7 +29,7 @@ async def list_users(
     search: str | None = None,
     page: int = Query(1, ge=1),
     size: int = Query(20, ge=1, le=100),
-    _: User = Depends(require_roles("admin")),
+    _: User = Depends(require_roles("администратор")),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(User)
@@ -51,13 +51,13 @@ async def list_users(
 @router.get("/users/{user_id}", response_model=UserOut)
 async def get_user(
     user_id: int,
-    _: User = Depends(require_roles("admin")),
+    _: User = Depends(require_roles("администратор")),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
     return user
 
 
@@ -65,13 +65,13 @@ async def get_user(
 async def update_user(
     user_id: int,
     payload: UserAdminUpdate,
-    _: User = Depends(require_roles("admin")),
+    _: User = Depends(require_roles("администратор")),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
 
     if payload.is_active is not None:
         user.is_active = payload.is_active

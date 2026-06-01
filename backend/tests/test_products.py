@@ -6,7 +6,7 @@ async def _register_farmer(client, email="farmer@test.com"):
         "email": email,
         "full_name": "Farmer",
         "password": "pass",
-        "role": "farmer",
+        "role": "фермер",
     })
     return res.json()["access_token"]
 
@@ -16,15 +16,15 @@ async def _register_customer(client, email="customer@test.com"):
         "email": email,
         "full_name": "Customer",
         "password": "pass",
-        "role": "customer",
+        "role": "покупатель",
     })
     return res.json()["access_token"]
 
 
 PRODUCT_PAYLOAD = {
     "name": "Картофель",
-    "category": "vegetables",
-    "unit": "kg",
+    "category": "овощи",
+    "unit": "кг",
     "price_per_unit": 35.0,
     "stock_quantity": 500.0,
     "min_order_quantity": 5.0,
@@ -50,7 +50,7 @@ async def test_create_product_farmer(client):
     assert res.status_code == 201
     data = res.json()
     assert data["name"] == "Картофель"
-    assert data["category"] == "vegetables"
+    assert data["category"] == "овощи"
 
 
 @pytest.mark.asyncio
@@ -104,7 +104,7 @@ async def test_delete_product(client):
 
 @pytest.mark.asyncio
 async def test_list_products_filter_category(client):
-    res = await client.get("/api/products", params={"category": "vegetables"})
+    res = await client.get("/api/products", params={"category": "овощи"})
     assert res.status_code == 200
 
 

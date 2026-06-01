@@ -21,7 +21,7 @@ router = APIRouter(prefix="/api/logistics", tags=["logistics"])
 
 @router.get("/vehicles", response_model=list[VehicleOut])
 async def list_vehicles(
-    current_user: User = Depends(require_roles("logist", "admin")),
+    current_user: User = Depends(require_roles("логист", "администратор")),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(select(Vehicle).where(Vehicle.is_active == True))
@@ -31,7 +31,7 @@ async def list_vehicles(
 @router.post("/vehicles", response_model=VehicleOut, status_code=status.HTTP_201_CREATED)
 async def create_vehicle(
     payload: VehicleCreate,
-    current_user: User = Depends(require_roles("admin")),
+    current_user: User = Depends(require_roles("администратор")),
     db: AsyncSession = Depends(get_db),
 ):
     vehicle = Vehicle(**payload.model_dump())
@@ -44,7 +44,7 @@ async def create_vehicle(
 @router.post("/plan", response_model=list[TripOut], status_code=status.HTTP_201_CREATED)
 async def plan_trips(
     payload: PlanRequest,
-    current_user: User = Depends(require_roles("logist", "admin")),
+    current_user: User = Depends(require_roles("логист", "администратор")),
     db: AsyncSession = Depends(get_db),
 ):
     # Fetch orders with items (confirmed or ready)
@@ -58,7 +58,7 @@ async def plan_trips(
     if not orders:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No plannable orders found (must be confirmed or ready)",
+            detail="Нет заказов для планирования (должны быть подтверждены или готовы)",
         )
 
     # Fetch vehicles
@@ -67,7 +67,7 @@ async def plan_trips(
     )
     vehicles = vehicles_result.scalars().all()
     if not vehicles:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No active vehicles found")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Активные транспортные средства не найдены")
 
     # Build order loads
     order_loads = []
@@ -149,7 +149,7 @@ async def plan_trips(
                 waypoint_type=WaypointType(wp_data["type"]),
                 lat=wp_data["lat"],
                 lon=wp_data["lon"],
-                address=f"Order #{wp_data['order_id']} - {wp_data['type']}",
+                address=f"Заказ #{wp_data['order_id']} - {wp_data['type']}",
             )
             db.add(wp)
             seq += 1
@@ -175,11 +175,11 @@ async def plan_trips(
 
 @router.get("/trips", response_model=list[TripOut])
 async def list_trips(
-    current_user: User = Depends(require_roles("logist", "admin", "driver")),
+    current_user: User = Depends(require_roles("логист", "администратор", "водитель")),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Trip)
-    if current_user.role == "driver":
+    if current_user.role == "водитель":
         query = query.where(Trip.driver_id == current_user.id)
     result = await db.execute(query.order_by(Trip.planned_date.desc()))
     trips = result.scalars().all()
@@ -202,7 +202,7 @@ async def get_trip(
     result = await db.execute(select(Trip).where(Trip.id == trip_id))
     trip = result.scalar_one_or_none()
     if not trip:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trip not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Рейс не найден")
 
     wps_result = await db.execute(
         select(Waypoint).where(Waypoint.trip_id == trip.id).order_by(Waypoint.sequence)

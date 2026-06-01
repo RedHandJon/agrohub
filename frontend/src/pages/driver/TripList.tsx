@@ -21,17 +21,17 @@ L.Marker.prototype.options.icon = L.icon({
 })
 
 const STATUS_LABELS: Record<TripStatus, string> = {
-  planned: 'Запланирован',
-  in_progress: 'В пути',
-  completed: 'Завершён',
-  cancelled: 'Отменён',
+  запланирован: 'Запланирован',
+  в_пути: 'В пути',
+  завершён: 'Завершён',
+  отменён: 'Отменён',
 }
 
 const STATUS_VARIANTS: Record<TripStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  planned: 'outline',
-  in_progress: 'default',
-  completed: 'secondary',
-  cancelled: 'destructive',
+  запланирован: 'outline',
+  в_пути: 'default',
+  завершён: 'secondary',
+  отменён: 'destructive',
 }
 
 // ── Signature modal ────────────────────────────────────────────────────────
@@ -191,7 +191,7 @@ function TripDetail({ trip, onBack }: TripDetailProps) {
             </Button>
           </a>
         )}
-        {trip.status === 'planned' && (
+        {trip.status === 'запланирован' && (
           <Button size="sm" onClick={() => startMutation.mutate(trip.id)} disabled={startMutation.isPending}>
             Начать рейс
           </Button>
@@ -210,8 +210,8 @@ function TripDetail({ trip, onBack }: TripDetailProps) {
               <Marker key={wp.id} position={[wp.lat, wp.lon]}>
                 <Popup>
                   <strong>
-                    {wp.waypoint_type === 'pickup' ? '📦 Загрузка' :
-                     wp.waypoint_type === 'dropoff' ? '🏠 Доставка' : '🏭 Склад'}
+                    {wp.waypoint_type === 'загрузка' ? '📦 Загрузка' :
+                     wp.waypoint_type === 'доставка' ? '🏠 Доставка' : '🏭 Склад'}
                   </strong><br />
                   {wp.order_id ? <>Заказ #{wp.order_id}<br /></> : null}
                   {wp.address}
@@ -226,16 +226,16 @@ function TripDetail({ trip, onBack }: TripDetailProps) {
       <div className="space-y-2">
         {trip.waypoints.map((wp) => (
           <div key={wp.id} className={`flex items-start gap-3 rounded-xl border p-3 ${
-            wp.status === 'completed' ? 'bg-green-50 border-green-200' :
-            wp.status === 'arrived' ? 'bg-yellow-50 border-yellow-200' : 'bg-white'
+            wp.status === 'завершено' ? 'bg-green-50 border-green-200' :
+            wp.status === 'прибыл' ? 'bg-yellow-50 border-yellow-200' : 'bg-white'
           }`}>
             <div className="mt-0.5 h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold bg-brand-700 text-white shrink-0">
               {wp.sequence}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-medium text-sm">
-                {wp.waypoint_type === 'pickup' ? '📦 Загрузка' :
-                 wp.waypoint_type === 'dropoff' ? '🏠 Доставка' : '🏭 Склад'}
+                {wp.waypoint_type === 'загрузка' ? '📦 Загрузка' :
+                 wp.waypoint_type === 'доставка' ? '🏠 Доставка' : '🏭 Склад'}
               </p>
               <p className="text-xs text-gray-500">{wp.address}</p>
               {wp.order_id && <p className="text-xs text-gray-400">Заказ #{wp.order_id}</p>}
@@ -245,20 +245,20 @@ function TripDetail({ trip, onBack }: TripDetailProps) {
                 </p>
               )}
             </div>
-            {trip.status === 'in_progress' && (
+            {trip.status === 'в_пути' && (
               <div className="flex gap-2 shrink-0">
-                {wp.status === 'pending' && (
+                {wp.status === 'ожидание' && (
                   <Button size="sm" variant="outline" onClick={() => arriveMutation.mutate(wp.id)}
                     disabled={arriveMutation.isPending}>
                     Прибыл
                   </Button>
                 )}
-                {wp.status === 'arrived' && (
+                {wp.status === 'прибыл' && (
                   <Button size="sm" onClick={() => setSignWaypoint(wp)} disabled={completeMutation.isPending}>
                     Выполнено
                   </Button>
                 )}
-                {wp.status === 'completed' && <span className="text-green-600 text-sm font-medium">✓</span>}
+                {wp.status === 'завершено' && <span className="text-green-600 text-sm font-medium">✓</span>}
               </div>
             )}
           </div>

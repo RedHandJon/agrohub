@@ -41,7 +41,7 @@ def decode_token(token: str) -> dict[str, Any]:
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
+            detail="Не удалось проверить учётные данные",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -54,22 +54,22 @@ async def get_current_user(
 
     payload = decode_token(token)
     if payload.get("type") != "access":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token type")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный тип токена")
 
     user_id: int = payload.get("sub")
     if user_id is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный токен")
 
     result = await db.execute(select(User).where(User.id == int(user_id)))
     user = result.scalar_one_or_none()
     if user is None or not user.is_active:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Пользователь не найден или неактивен")
     return user
 
 
 def require_roles(*roles: str):
     async def checker(current_user=Depends(get_current_user)):
         if current_user.role not in roles:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Недостаточно прав")
         return current_user
     return checker

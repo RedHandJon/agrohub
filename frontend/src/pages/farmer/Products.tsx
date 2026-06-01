@@ -22,8 +22,8 @@ type FormState = {
 }
 
 const EMPTY_FORM: FormState = {
-  name: '', description: '', category: 'vegetables',
-  unit: 'kg', price_per_unit: '', stock_quantity: '',
+  name: '', description: '', category: 'овощи',
+  unit: 'кг', price_per_unit: '', stock_quantity: '',
   min_order_quantity: '0', weight_per_unit_kg: '1', volume_per_unit_m3: '0.001',
   image_url: '',
 }
@@ -181,7 +181,7 @@ export default function FarmerProducts() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">Категория</label>
                   <select value={form.category} onChange={set('category')}
                     className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
-                    {['vegetables','fruits','grains','dairy','meat','herbs','other'].map(c =>
+                    {(['овощи','фрукты','зерно','молочное','мясо','зелень','прочее'] as const).map(c =>
                       <option key={c} value={c}>{c}</option>
                     )}
                   </select>
@@ -190,7 +190,7 @@ export default function FarmerProducts() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">Единица</label>
                   <select value={form.unit} onChange={set('unit')}
                     className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
-                    {['kg','ton','piece','liter','box'].map(u =>
+                    {(['кг','тонна','шт','л','ящик'] as const).map(u =>
                       <option key={u} value={u}>{u}</option>
                     )}
                   </select>

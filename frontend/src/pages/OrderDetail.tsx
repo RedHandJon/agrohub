@@ -10,32 +10,32 @@ import { ArrowLeft, Download, Package } from 'lucide-react'
 import type { OrderStatus } from '@/types'
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
-  draft: 'Черновик',
-  pending: 'Ожидает',
-  confirmed: 'Подтверждён',
-  ready: 'Готов',
-  in_transit: 'В пути',
-  delivered: 'Доставлен',
-  cancelled: 'Отменён',
+  черновик: 'Черновик',
+  ожидает: 'Ожидает',
+  подтверждён: 'Подтверждён',
+  готов: 'Готов',
+  в_пути: 'В пути',
+  доставлен: 'Доставлен',
+  отменён: 'Отменён',
 }
 
 const STATUS_VARIANTS: Record<OrderStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  draft: 'outline',
-  pending: 'secondary',
-  confirmed: 'secondary',
-  ready: 'default',
-  in_transit: 'default',
-  delivered: 'default',
-  cancelled: 'destructive',
+  черновик: 'outline',
+  ожидает: 'secondary',
+  подтверждён: 'secondary',
+  готов: 'default',
+  в_пути: 'default',
+  доставлен: 'default',
+  отменён: 'destructive',
 }
 
 const PAYMENT_LABELS: Record<string, string> = {
-  unpaid: 'Не оплачен',
-  paid: 'Оплачен',
-  refunded: 'Возврат',
+  не_оплачен: 'Не оплачен',
+  оплачен: 'Оплачен',
+  возврат: 'Возврат',
 }
 
-const STATUS_FLOW: OrderStatus[] = ['pending', 'confirmed', 'ready', 'in_transit', 'delivered']
+const STATUS_FLOW: OrderStatus[] = ['ожидает', 'подтверждён', 'готов', 'в_пути', 'доставлен']
 
 export default function OrderDetail() {
   const { id } = useParams<{ id: string }>()
@@ -82,7 +82,7 @@ export default function OrderDetail() {
   )
   if (!order) return <p className="text-gray-500">Заказ не найден</p>
 
-  const canChangeStatus = user && ['farmer', 'logist', 'admin'].includes(user.role)
+  const canChangeStatus = user && ['фермер', 'логист', 'администратор'].includes(user.role)
   const nextStatus = STATUS_FLOW[STATUS_FLOW.indexOf(order.status) + 1]
 
   return (
@@ -174,7 +174,7 @@ export default function OrderDetail() {
         <Button variant="outline" className="gap-2" onClick={downloadInvoice}>
           <Download className="h-4 w-4" /> Скачать накладную
         </Button>
-        {canChangeStatus && nextStatus && order.status !== 'cancelled' && (
+        {canChangeStatus && nextStatus && order.status !== 'отменён' && (
           <Button
             onClick={() => statusMutation.mutate(nextStatus)}
             disabled={statusMutation.isPending}
@@ -182,10 +182,10 @@ export default function OrderDetail() {
             {statusMutation.isPending ? 'Обновляем...' : `Перевести в "${STATUS_LABELS[nextStatus]}"`}
           </Button>
         )}
-        {canChangeStatus && order.status !== 'cancelled' && order.status !== 'delivered' && (
+        {canChangeStatus && order.status !== 'отменён' && order.status !== 'доставлен' && (
           <Button
             variant="destructive"
-            onClick={() => statusMutation.mutate('cancelled')}
+            onClick={() => statusMutation.mutate('отменён')}
             disabled={statusMutation.isPending}
           >
             Отменить заказ

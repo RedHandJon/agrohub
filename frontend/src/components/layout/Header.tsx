@@ -8,21 +8,21 @@ import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
 const ROLE_NAV: Record<string, { to: string; label: string }[]> = {
-  customer: [
+  покупатель: [
     { to: '/catalog', label: 'Каталог' },
     { to: '/orders', label: 'Мои заказы' },
   ],
-  farmer: [
+  фермер: [
     { to: '/farmer/products', label: 'Товары' },
     { to: '/farmer/orders', label: 'Заказы' },
   ],
-  logist: [
+  логист: [
     { to: '/logist/planner', label: 'Планировщик' },
   ],
-  driver: [
+  водитель: [
     { to: '/driver/trips', label: 'Мои рейсы' },
   ],
-  admin: [
+  администратор: [
     { to: '/admin/analytics', label: 'Аналитика' },
     { to: '/admin/users', label: 'Пользователи' },
   ],
@@ -72,7 +72,7 @@ export function Header() {
         )}
 
         {/* Search — only for customers and public */}
-        {(!user || user.role === 'customer' || user.role === 'admin') && (
+        {(!user || user.role === 'покупатель' || user.role === 'администратор') && (
           <form onSubmit={handleSearch} className="flex flex-1 items-center gap-2 max-w-sm">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -91,7 +91,7 @@ export function Header() {
           {user ? (
             <>
               {/* Cart — only for customers */}
-              {(user.role === 'customer') && (
+              {(user.role === 'покупатель') && (
                 <Link to="/cart" className="relative">
                   <Button variant="ghost" size="icon">
                     <ShoppingCart className="h-5 w-5" />

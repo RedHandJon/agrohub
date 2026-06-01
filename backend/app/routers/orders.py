@@ -19,7 +19,7 @@ async def create_order(
     db: AsyncSession = Depends(get_db),
 ):
     if not payload.items:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Order must have at least one item")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Заказ должен содержать хотя бы один товар")
 
     order = Order(
         customer_id=current_user.id,
@@ -35,11 +35,11 @@ async def create_order(
         result = await db.execute(select(Product).where(Product.id == item_data.product_id, Product.is_active == True))
         product = result.scalar_one_or_none()
         if not product:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Product {item_data.product_id} not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Товар {item_data.product_id} не найден")
         if product.stock_quantity < item_data.quantity:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Insufficient stock for product {product.name}",
+                detail=f"Недостаточно товара {product.name} на складе",
             )
 
         unit_price = product.price_per_unit
@@ -77,9 +77,9 @@ async def list_orders(
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Order)
-    if current_user.role == "customer":
+    if current_user.role == "покупатель":
         query = query.where(Order.customer_id == current_user.id)
-    elif current_user.role == "farmer":
+    elif current_user.role == "фермер":
         query = (
             query
             .join(OrderItem, OrderItem.order_id == Order.id)
@@ -114,9 +114,9 @@ async def get_order(
     result = await db.execute(select(Order).where(Order.id == order_id))
     order = result.scalar_one_or_none()
     if not order:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
-    if current_user.role == "customer" and order.customer_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Заказ не найден")
+    if current_user.role == "покупатель" and order.customer_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Доступ запрещён")
 
     items_result = await db.execute(select(OrderItem).where(OrderItem.order_id == order.id).options(selectinload(OrderItem.product)))
     order.items = list(items_result.scalars().all())
@@ -127,13 +127,13 @@ async def get_order(
 async def update_order_status(
     order_id: int,
     payload: OrderStatusUpdate,
-    current_user: User = Depends(require_roles("farmer", "logist", "admin")),
+    current_user: User = Depends(require_roles("фермер", "логист", "администратор")),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(select(Order).where(Order.id == order_id))
     order = result.scalar_one_or_none()
     if not order:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Заказ не найден")
 
     order.status = payload.status
     await db.flush()

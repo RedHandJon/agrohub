@@ -7,19 +7,19 @@ async def test_register_success(client):
         "email": "test@example.com",
         "full_name": "Test User",
         "password": "secret123",
-        "role": "customer",
+        "role": "покупатель",
     })
     assert res.status_code == 201
     data = res.json()
     assert "access_token" in data
     assert "refresh_token" in data
     assert data["user"]["email"] == "test@example.com"
-    assert data["user"]["role"] == "customer"
+    assert data["user"]["role"] == "покупатель"
 
 
 @pytest.mark.asyncio
 async def test_register_duplicate_email(client):
-    payload = {"email": "dup@example.com", "full_name": "A", "password": "pass", "role": "customer"}
+    payload = {"email": "dup@example.com", "full_name": "A", "password": "pass", "role": "покупатель"}
     await client.post("/api/auth/register", json=payload)
     res = await client.post("/api/auth/register", json=payload)
     assert res.status_code == 409
@@ -31,7 +31,7 @@ async def test_login_success(client):
         "email": "login@example.com",
         "full_name": "Login User",
         "password": "mypass",
-        "role": "customer",
+        "role": "покупатель",
     })
     res = await client.post("/api/auth/login", json={
         "email": "login@example.com",
@@ -47,7 +47,7 @@ async def test_login_wrong_password(client):
         "email": "wrong@example.com",
         "full_name": "W",
         "password": "correct",
-        "role": "customer",
+        "role": "покупатель",
     })
     res = await client.post("/api/auth/login", json={
         "email": "wrong@example.com",
@@ -68,7 +68,7 @@ async def test_me_authenticated(client):
         "email": "me@example.com",
         "full_name": "Me User",
         "password": "pass",
-        "role": "farmer",
+        "role": "фермер",
     })
     token = reg.json()["access_token"]
     res = await client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
@@ -82,7 +82,7 @@ async def test_refresh_token(client):
         "email": "refresh@example.com",
         "full_name": "R",
         "password": "pass",
-        "role": "customer",
+        "role": "покупатель",
     })
     refresh_token = reg.json()["refresh_token"]
     res = await client.post("/api/auth/refresh", json={"refresh_token": refresh_token})
@@ -96,7 +96,7 @@ async def test_logout(client):
         "email": "logout@example.com",
         "full_name": "L",
         "password": "pass",
-        "role": "customer",
+        "role": "покупатель",
     })
     token = reg.json()["access_token"]
     res = await client.post("/api/auth/logout", headers={"Authorization": f"Bearer {token}"})

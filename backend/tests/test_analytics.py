@@ -6,7 +6,7 @@ async def _make_admin(client):
         "email": "admin_analytics@test.com",
         "full_name": "Admin",
         "password": "pass",
-        "role": "admin",
+        "role": "администратор",
     })
     return res.json()["access_token"]
 
@@ -16,7 +16,7 @@ async def _make_customer(client):
         "email": "customer_analytics@test.com",
         "full_name": "C",
         "password": "pass",
-        "role": "customer",
+        "role": "покупатель",
     })
     return res.json()["access_token"]
 

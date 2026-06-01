@@ -32,7 +32,7 @@ async def _upload_to_minio(data: bytes, filename: str, content_type: str) -> str
     """Upload file to MinIO and return public URL."""
     client_ctx = await _get_minio_client()
     if client_ctx is None:
-        raise HTTPException(status_code=503, detail="Storage service unavailable")
+        raise HTTPException(status_code=503, detail="Служба хранилища недоступна")
 
     async with client_ctx as client:
         # Ensure bucket exists
@@ -60,12 +60,12 @@ async def upload_image(
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid file type. Allowed: {', '.join(ALLOWED_IMAGE_TYPES)}",
+            detail=f"Недопустимый тип файла. Разрешены: {', '.join(ALLOWED_IMAGE_TYPES)}",
         )
 
     data = await file.read()
     if len(data) > MAX_FILE_SIZE:
-        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="File too large (max 5 MB)")
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="Файл слишком большой (макс. 5 МБ)")
 
     ext = file.filename.rsplit(".", 1)[-1] if file.filename and "." in file.filename else "jpg"
     filename = f"images/{uuid.uuid4()}.{ext}"
@@ -83,12 +83,12 @@ async def upload_signature(
     if file.content_type not in ALLOWED_SIGNATURE_TYPES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Signature must be PNG or JPEG",
+            detail="Подпись должна быть в формате PNG или JPEG",
         )
 
     data = await file.read()
     if len(data) > MAX_FILE_SIZE:
-        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="File too large (max 5 MB)")
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="Файл слишком большой (макс. 5 МБ)")
 
     filename = f"signatures/{uuid.uuid4()}.png"
     url = await _upload_to_minio(data, filename, "image/png")

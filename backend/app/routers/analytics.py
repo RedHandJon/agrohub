@@ -15,7 +15,7 @@ router = APIRouter(prefix="/api/analytics", tags=["analytics"])
 @router.get("/summary")
 async def get_summary(
     days: int = Query(30, ge=1, le=365),
-    current_user: User = Depends(require_roles("admin", "logist")),
+    current_user: User = Depends(require_roles("администратор", "логист")),
     db: AsyncSession = Depends(get_db),
 ):
     since = datetime.now(timezone.utc) - timedelta(days=days)
@@ -59,7 +59,7 @@ async def get_summary(
 async def top_products(
     limit: int = Query(10, ge=1, le=50),
     days: int = Query(30, ge=1, le=365),
-    current_user: User = Depends(require_roles("admin", "farmer", "logist")),
+    current_user: User = Depends(require_roles("администратор", "фермер", "логист")),
     db: AsyncSession = Depends(get_db),
 ):
     since = datetime.now(timezone.utc) - timedelta(days=days)
@@ -92,7 +92,7 @@ async def top_products(
 @router.get("/orders-by-status")
 async def orders_by_status(
     days: int = Query(30, ge=1, le=365),
-    current_user: User = Depends(require_roles("admin", "logist")),
+    current_user: User = Depends(require_roles("администратор", "логист")),
     db: AsyncSession = Depends(get_db),
 ):
     since = datetime.now(timezone.utc) - timedelta(days=days)

@@ -21,9 +21,9 @@ async def download_invoice(
     result = await db.execute(select(Order).where(Order.id == order_id))
     order = result.scalar_one_or_none()
     if not order:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
-    if current_user.role == "customer" and order.customer_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Заказ не найден")
+    if current_user.role == "покупатель" and order.customer_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Доступ запрещён")
 
     items_result = await db.execute(select(OrderItem).where(OrderItem.order_id == order.id))
     items = items_result.scalars().all()
@@ -34,8 +34,8 @@ async def download_invoice(
         prod_result = await db.execute(select(Product).where(Product.id == item.product_id))
         product = prod_result.scalar_one_or_none()
         enriched_items.append({
-            "product_name": product.name if product else f"Product #{item.product_id}",
-            "unit": product.unit if product else "unit",
+            "product_name": product.name if product else f"Товар #{item.product_id}",
+            "unit": product.unit if product else "ед.",
             "quantity": item.quantity,
             "unit_price": item.unit_price,
             "total_price": item.total_price,

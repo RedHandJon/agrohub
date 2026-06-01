@@ -22,13 +22,13 @@ async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_db))
     # Check email uniqueness
     result = await db.execute(select(User).where(User.email == payload.email))
     if result.scalar_one_or_none():
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email уже зарегистрирован")
 
     # Validate role
     try:
         role = UserRole(payload.role)
     except ValueError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid role: {payload.role}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Недопустимая роль: {payload.role}")
 
     user = User(
         email=payload.email,
@@ -59,10 +59,10 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     if not user or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
+            detail="Неверный email или пароль",
         )
     if not user.is_active:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Аккаунт отключён")
 
     access_token = create_access_token({"sub": str(user.id), "role": user.role})
     refresh_token = create_refresh_token({"sub": str(user.id)})
@@ -78,12 +78,12 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
 async def refresh(payload: RefreshRequest, db: AsyncSession = Depends(get_db)):
     data = decode_token(payload.refresh_token)
     if data.get("type") != "refresh":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token type")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный тип токена")
 
     result = await db.execute(select(User).where(User.id == int(data["sub"])))
     user = result.scalar_one_or_none()
     if not user or not user.is_active:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Пользователь не найден")
 
     return TokenPair(
         access_token=create_access_token({"sub": str(user.id), "role": user.role}),

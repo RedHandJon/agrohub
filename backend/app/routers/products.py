@@ -42,14 +42,14 @@ async def get_product(product_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Product).where(Product.id == product_id))
     product = result.scalar_one_or_none()
     if not product:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Товар не найден")
     return product
 
 
 @router.post("", response_model=ProductOut, status_code=status.HTTP_201_CREATED)
 async def create_product(
     payload: ProductCreate,
-    current_user: User = Depends(require_roles("farmer", "admin")),
+    current_user: User = Depends(require_roles("фермер", "администратор")),
     db: AsyncSession = Depends(get_db),
 ):
     product = Product(**payload.model_dump(), farmer_id=current_user.id)
@@ -69,9 +69,9 @@ async def update_product(
     result = await db.execute(select(Product).where(Product.id == product_id))
     product = result.scalar_one_or_none()
     if not product:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
-    if product.farmer_id != current_user.id and current_user.role != "admin":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your product")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Товар не найден")
+    if product.farmer_id != current_user.id and current_user.role != "администратор":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Это не ваш товар")
 
     for field, value in payload.model_dump(exclude_none=True).items():
         setattr(product, field, value)
@@ -89,7 +89,7 @@ async def delete_product(
     result = await db.execute(select(Product).where(Product.id == product_id))
     product = result.scalar_one_or_none()
     if not product:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
-    if product.farmer_id != current_user.id and current_user.role != "admin":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your product")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Товар не найден")
+    if product.farmer_id != current_user.id and current_user.role != "администратор":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Это не ваш товар")
     await db.delete(product)

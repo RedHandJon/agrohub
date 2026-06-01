@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/driver", tags=["driver"])
 
 @router.get("/trips", response_model=list[TripOut])
 async def driver_trips(
-    current_user: User = Depends(require_roles("driver")),
+    current_user: User = Depends(require_roles("водитель")),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
@@ -31,15 +31,15 @@ async def driver_trips(
 @router.post("/trips/{trip_id}/start", response_model=TripOut)
 async def start_trip(
     trip_id: int,
-    current_user: User = Depends(require_roles("driver")),
+    current_user: User = Depends(require_roles("водитель")),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(select(Trip).where(Trip.id == trip_id, Trip.driver_id == current_user.id))
     trip = result.scalar_one_or_none()
     if not trip:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trip not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Рейс не найден")
     if trip.status != TripStatus.planned:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Trip is not in planned state")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Рейс не в статусе 'Запланирован'")
 
     trip.status = TripStatus.in_progress
     await db.flush()
@@ -55,18 +55,18 @@ async def start_trip(
 async def arrive_at_waypoint(
     waypoint_id: int,
     payload: WaypointArriveRequest,
-    current_user: User = Depends(require_roles("driver")),
+    current_user: User = Depends(require_roles("водитель")),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(select(Waypoint).where(Waypoint.id == waypoint_id))
     wp = result.scalar_one_or_none()
     if not wp:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Waypoint not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Точка маршрута не найдена")
 
     # Verify driver owns this trip
     trip_result = await db.execute(select(Trip).where(Trip.id == wp.trip_id, Trip.driver_id == current_user.id))
     if not trip_result.scalar_one_or_none():
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your trip")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Это не ваш рейс")
 
     wp.status = WaypointStatus.arrived
     wp.arrived_at = datetime.now(timezone.utc)
@@ -81,7 +81,7 @@ async def arrive_at_waypoint(
 async def complete_waypoint(
     waypoint_id: int,
     payload: WaypointCompleteRequest,
-    current_user: User = Depends(require_roles("driver")),
+    current_user: User = Depends(require_roles("водитель")),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(select(Waypoint).where(Waypoint.id == waypoint_id))

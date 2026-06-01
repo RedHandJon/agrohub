@@ -7,23 +7,23 @@ import { Button } from '@/components/ui/button'
 import type { OrderStatus } from '@/types'
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
-  draft: 'Черновик',
-  pending: 'Ожидает',
-  confirmed: 'Подтверждён',
-  ready: 'Готов',
-  in_transit: 'В пути',
-  delivered: 'Доставлен',
-  cancelled: 'Отменён',
+  черновик: 'Черновик',
+  ожидает: 'Ожидает',
+  подтверждён: 'Подтверждён',
+  готов: 'Готов',
+  в_пути: 'В пути',
+  доставлен: 'Доставлен',
+  отменён: 'Отменён',
 }
 
 const STATUS_VARIANTS: Record<OrderStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  draft: 'outline',
-  pending: 'secondary',
-  confirmed: 'secondary',
-  ready: 'default',
-  in_transit: 'default',
-  delivered: 'default',
-  cancelled: 'destructive',
+  черновик: 'outline',
+  ожидает: 'secondary',
+  подтверждён: 'secondary',
+  готов: 'default',
+  в_пути: 'default',
+  доставлен: 'default',
+  отменён: 'destructive',
 }
 
 export default function FarmerOrders() {
@@ -36,12 +36,12 @@ export default function FarmerOrders() {
   })
 
   const confirmMutation = useMutation({
-    mutationFn: (id: number) => ordersApi.updateStatus(id, 'confirmed'),
+    mutationFn: (id: number) => ordersApi.updateStatus(id, 'подтверждён'),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['farmer-orders'] }),
   })
 
   const readyMutation = useMutation({
-    mutationFn: (id: number) => ordersApi.updateStatus(id, 'ready'),
+    mutationFn: (id: number) => ordersApi.updateStatus(id, 'готов'),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['farmer-orders'] }),
   })
 
@@ -53,9 +53,9 @@ export default function FarmerOrders() {
     </div>
   )
 
-  const pending = data?.items.filter((o) => o.status === 'pending') ?? []
-  const active = data?.items.filter((o) => ['confirmed', 'ready', 'in_transit'].includes(o.status)) ?? []
-  const done = data?.items.filter((o) => ['delivered', 'cancelled'].includes(o.status)) ?? []
+  const pending = data?.items.filter((o) => o.status === 'ожидает') ?? []
+  const active = data?.items.filter((o) => ['подтверждён', 'готов', 'в_пути'].includes(o.status)) ?? []
+  const done = data?.items.filter((o) => ['доставлен', 'отменён'].includes(o.status)) ?? []
 
   const renderGroup = (title: string, orders: typeof pending) => (
     orders.length > 0 && (
@@ -73,13 +73,13 @@ export default function FarmerOrders() {
               </div>
               <div className="flex items-center gap-3">
                 <Badge variant={STATUS_VARIANTS[order.status]}>{STATUS_LABELS[order.status]}</Badge>
-                {order.status === 'pending' && (
+                {order.status === 'ожидает' && (
                   <Button size="sm" onClick={() => confirmMutation.mutate(order.id)}
                     disabled={confirmMutation.isPending}>
                     Подтвердить
                   </Button>
                 )}
-                {order.status === 'confirmed' && (
+                {order.status === 'подтверждён' && (
                   <Button size="sm" onClick={() => readyMutation.mutate(order.id)}
                     disabled={readyMutation.isPending}>
                     Готов к отгрузке

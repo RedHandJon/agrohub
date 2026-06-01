@@ -1,4 +1,4 @@
-export type UserRole = 'customer' | 'farmer' | 'logist' | 'driver' | 'admin'
+export type UserRole = 'покупатель' | 'фермер' | 'логист' | 'водитель' | 'администратор'
 
 export interface User {
   id: number
@@ -22,8 +22,8 @@ export interface AuthResponse extends TokenPair {
   user: User
 }
 
-export type ProductCategory = 'vegetables' | 'fruits' | 'grains' | 'dairy' | 'meat' | 'herbs' | 'other'
-export type ProductUnit = 'kg' | 'ton' | 'piece' | 'liter' | 'box'
+export type ProductCategory = 'овощи' | 'фрукты' | 'зерно' | 'молочное' | 'мясо' | 'зелень' | 'прочее'
+export type ProductUnit = 'кг' | 'тонна' | 'шт' | 'л' | 'ящик'
 
 export interface Product {
   id: number
@@ -52,8 +52,8 @@ export interface ProductListResponse {
   size: number
 }
 
-export type OrderStatus = 'draft' | 'pending' | 'confirmed' | 'ready' | 'in_transit' | 'delivered' | 'cancelled'
-export type PaymentStatus = 'unpaid' | 'paid' | 'refunded'
+export type OrderStatus = 'черновик' | 'ожидает' | 'подтверждён' | 'готов' | 'в_пути' | 'доставлен' | 'отменён'
+export type PaymentStatus = 'не_оплачен' | 'оплачен' | 'возврат'
 
 export interface OrderItem {
   id: number
@@ -86,9 +86,9 @@ export interface OrderListResponse {
   size: number
 }
 
-export type TripStatus = 'planned' | 'in_progress' | 'completed' | 'cancelled'
-export type WaypointStatus = 'pending' | 'arrived' | 'completed' | 'skipped'
-export type WaypointType = 'pickup' | 'dropoff' | 'depot'
+export type TripStatus = 'запланирован' | 'в_пути' | 'завершён' | 'отменён'
+export type WaypointStatus = 'ожидание' | 'прибыл' | 'завершено' | 'пропущено'
+export type WaypointType = 'загрузка' | 'доставка' | 'склад'
 
 export interface Waypoint {
   id: number

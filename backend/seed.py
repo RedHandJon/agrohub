@@ -203,7 +203,7 @@ async def seed():
 
         # Заказ 1: доставлен
         order1 = Order(customer_id=customer1.id, delivery_location_id=loc1.id,
-                       status="delivered", payment_status="paid",
+                       status="доставлен", payment_status="оплачен",
                        total_amount=Decimal("0"),
                        delivery_notes="Позвонить за 30 минут",
                        scheduled_date=now - timedelta(days=3))
@@ -220,7 +220,7 @@ async def seed():
 
         # Заказ 2: в пути
         order2 = Order(customer_id=customer2.id, delivery_location_id=loc2.id,
-                       status="in_transit", payment_status="paid",
+                       status="в_пути", payment_status="оплачен",
                        total_amount=Decimal("0"),
                        scheduled_date=now + timedelta(hours=2))
         db.add(order2)
@@ -236,7 +236,7 @@ async def seed():
 
         # Заказ 3: подтверждён
         order3 = Order(customer_id=customer1.id, delivery_location_id=loc1.id,
-                       status="confirmed", payment_status="unpaid",
+                       status="подтверждён", payment_status="не_оплачен",
                        total_amount=Decimal("0"),
                        scheduled_date=now + timedelta(days=1))
         db.add(order3)
@@ -252,7 +252,7 @@ async def seed():
 
         # Заказ 4: ожидает
         order4 = Order(customer_id=customer2.id, delivery_location_id=loc2.id,
-                       status="pending", payment_status="unpaid",
+                       status="ожидает", payment_status="не_оплачен",
                        total_amount=Decimal("0"))
         db.add(order4)
         await db.flush()
@@ -267,7 +267,7 @@ async def seed():
 
         # Заказ 5: готов к отгрузке
         order5 = Order(customer_id=customer1.id, delivery_location_id=loc1.id,
-                       status="ready", payment_status="paid",
+                       status="готов", payment_status="оплачен",
                        total_amount=Decimal("0"),
                        scheduled_date=now + timedelta(hours=4))
         db.add(order5)

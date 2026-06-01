@@ -31,11 +31,11 @@ export default function Planner() {
 
   const { data: confirmedData } = useQuery({
     queryKey: ['orders', 'confirmed'],
-    queryFn: () => ordersApi.list({ status: 'confirmed', size: 50 }),
+    queryFn: () => ordersApi.list({ status: 'подтверждён', size: 50 }),
   })
   const { data: readyData } = useQuery({
     queryKey: ['orders', 'ready'],
-    queryFn: () => ordersApi.list({ status: 'ready', size: 50 }),
+    queryFn: () => ordersApi.list({ status: 'готов', size: 50 }),
   })
   const ordersData = {
     items: [...(confirmedData?.items ?? []), ...(readyData?.items ?? [])],
@@ -116,7 +116,7 @@ export default function Planner() {
                 <p className="font-medium">Заказ №{order.id}</p>
                 <p className="text-sm text-gray-500">{order.items.length} позиций · {parseFloat(order.total_amount).toLocaleString('ru')} ₽</p>
               </div>
-              <Badge variant="secondary">confirmed</Badge>
+              <Badge variant="secondary">{order.status}</Badge>
             </label>
           ))}
 

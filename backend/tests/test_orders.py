@@ -6,12 +6,12 @@ async def _make_farmer_and_product(client, suffix=""):
         "email": f"farmer_ord{suffix}@test.com",
         "full_name": "Farmer",
         "password": "pass",
-        "role": "farmer",
+        "role": "фермер",
     })).json()["access_token"]
     product = (await client.post("/api/products", json={
         "name": "Tomato",
-        "category": "vegetables",
-        "unit": "kg",
+        "category": "овощи",
+        "unit": "кг",
         "price_per_unit": 50.0,
         "stock_quantity": 100.0,
         "min_order_quantity": 1.0,
@@ -26,7 +26,7 @@ async def _make_customer(client, suffix=""):
         "email": f"customer_ord{suffix}@test.com",
         "full_name": "Customer",
         "password": "pass",
-        "role": "customer",
+        "role": "покупатель",
     })
     return res.json()["access_token"]
 
@@ -40,7 +40,7 @@ async def test_create_order_success(client):
     }, headers={"Authorization": f"Bearer {ctoken}"})
     assert res.status_code == 201
     data = res.json()
-    assert data["status"] == "pending"
+    assert data["status"] == "ожидает"
     assert len(data["items"]) == 1
     assert float(data["total_amount"]) == 250.0
 
@@ -114,7 +114,7 @@ async def test_update_order_status_by_farmer(client):
     order_id = create_res.json()["id"]
 
     res = await client.patch(f"/api/orders/{order_id}/status",
-                             json={"status": "confirmed"},
+                             json={"status": "подтверждён"},
                              headers={"Authorization": f"Bearer {ftoken}"})
     assert res.status_code == 200
-    assert res.json()["status"] == "confirmed"
+    assert res.json()["status"] == "подтверждён"

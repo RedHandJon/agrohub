@@ -8,15 +8,15 @@ import { Leaf } from 'lucide-react'
 import type { UserRole } from '@/types'
 
 const ROLES: { value: UserRole; label: string }[] = [
-  { value: 'customer', label: 'Покупатель' },
-  { value: 'farmer', label: 'Фермер' },
-  { value: 'logist', label: 'Логист' },
-  { value: 'driver', label: 'Водитель' },
+  { value: 'покупатель', label: 'Покупатель' },
+  { value: 'фермер', label: 'Фермер' },
+  { value: 'логист', label: 'Логист' },
+  { value: 'водитель', label: 'Водитель' },
 ]
 
 export default function Register() {
   usePageTitle('Регистрация')
-  const [form, setForm] = useState({ email: '', full_name: '', password: '', phone: '', role: 'customer' as UserRole })
+  const [form, setForm] = useState({ email: '', full_name: '', password: '', phone: '', role: 'покупатель' as UserRole })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const setAuth = useAuthStore((s) => s.setAuth)
