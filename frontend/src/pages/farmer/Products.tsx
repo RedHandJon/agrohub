@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { productsApi } from '@/api/products'
+import { apiClient } from '@/api/client'
 import { useAuthStore } from '@/store/auth'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Pencil, Trash2, X, Eye } from 'lucide-react'
-import type { Product, ProductCategory, ProductUnit } from '@/types'
+import type { Product, ProductCategory, ProductUnit, Warehouse } from '@/types'
 import { usePageTitle } from '@/hooks/usePageTitle'
 
 type FormState = {
@@ -19,13 +20,14 @@ type FormState = {
   weight_per_unit_kg: string
   volume_per_unit_m3: string
   image_url: string
+  warehouse_id: string
 }
 
 const EMPTY_FORM: FormState = {
   name: '', description: '', category: 'овощи',
   unit: 'кг', price_per_unit: '', stock_quantity: '',
   min_order_quantity: '0', weight_per_unit_kg: '1', volume_per_unit_m3: '0.001',
-  image_url: '',
+  image_url: '', warehouse_id: '',
 }
 
 function CardPreview({ form }: { form: FormState }) {
@@ -89,6 +91,12 @@ export default function FarmerProducts() {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
 
+  const { data: warehouses } = useQuery({
+    queryKey: ['warehouses'],
+    queryFn: () => apiClient.get<Warehouse[]>('/warehouses').then((r) => r.data),
+    enabled: showForm,
+  })
+
   const { data } = useQuery({
     queryKey: ['farmer-products', user?.id],
     queryFn: () => productsApi.list({ farmer_id: user!.id }),
@@ -128,6 +136,7 @@ export default function FarmerProducts() {
       weight_per_unit_kg: p.weight_per_unit_kg,
       volume_per_unit_m3: p.volume_per_unit_m3,
       image_url: p.image_url ?? '',
+      warehouse_id: p.warehouse_id ? String(p.warehouse_id) : '',
     })
     setShowForm(true)
   }
@@ -136,10 +145,14 @@ export default function FarmerProducts() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    const payload = {
+      ...form,
+      warehouse_id: form.warehouse_id ? parseInt(form.warehouse_id) : null,
+    }
     if (editingId) {
-      updateMutation.mutate({ id: editingId, data: form })
+      updateMutation.mutate({ id: editingId, data: payload as any })
     } else {
-      createMutation.mutate(form as any)
+      createMutation.mutate(payload as any)
     }
   }
 
@@ -193,6 +206,16 @@ export default function FarmerProducts() {
                     {(['кг','тонна','шт','л','ящик'] as const).map(u =>
                       <option key={u} value={u}>{u}</option>
                     )}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Склад</label>
+                  <select value={form.warehouse_id} onChange={set('warehouse_id')}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                    <option value="">— Не указан —</option>
+                    {warehouses?.map((w) => (
+                      <option key={w.id} value={String(w.id)}>{w.name}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="sm:col-span-2">

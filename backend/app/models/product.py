@@ -58,5 +58,14 @@ class Product(Base):
         nullable=False,
     )
 
+    warehouse_id: Mapped[int | None] = mapped_column(
+        ForeignKey("warehouses.id", ondelete="SET NULL"), nullable=True
+    )
+
     farmer = relationship("User", lazy="noload")
+    warehouse = relationship("Warehouse", lazy="noload")
     order_items = relationship("OrderItem", back_populates="product", lazy="noload")
+
+    @property
+    def warehouse_name(self) -> str | None:
+        return self.warehouse.name if self.warehouse else None

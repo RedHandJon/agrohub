@@ -27,4 +27,6 @@ export const logisticsApi = {
 
   completeWaypoint: (wpId: number, data: { signature_url?: string; notes?: string }) =>
     apiClient.post<Waypoint>(`/driver/waypoints/${wpId}/complete`, data).then((r) => r.data),
+
+  completeTrip: (tripId: number) => apiClient.post<Trip>(`/driver/trips/${tripId}/complete`).then((r) => r.data),
 }

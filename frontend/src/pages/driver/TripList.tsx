@@ -162,6 +162,15 @@ function TripDetail({ trip, onBack }: TripDetailProps) {
     },
   })
 
+  const completeTripMutation = useMutation({
+    mutationFn: logisticsApi.completeTrip,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['driver-trips'] }),
+  })
+
+  const allDone = trip.waypoints.every(
+    (wp) => wp.status === 'завершено' || wp.status === 'пропущено'
+  )
+
   const mapWaypoints = trip.waypoints.filter((wp) => wp.lat && wp.lon)
   const mapCenter: [number, number] = mapWaypoints.length
     ? [mapWaypoints[0].lat, mapWaypoints[0].lon]
@@ -194,6 +203,16 @@ function TripDetail({ trip, onBack }: TripDetailProps) {
         {trip.status === 'запланирован' && (
           <Button size="sm" onClick={() => startMutation.mutate(trip.id)} disabled={startMutation.isPending}>
             Начать рейс
+          </Button>
+        )}
+        {trip.status === 'в_пути' && (
+          <Button
+            size="sm"
+            onClick={() => completeTripMutation.mutate(trip.id)}
+            disabled={completeTripMutation.isPending || !allDone}
+            title={!allDone ? 'Подтвердите все точки маршрута' : ''}
+          >
+            Завершить рейс
           </Button>
         )}
       </div>

@@ -21,6 +21,7 @@ const FarmerOrders = lazy(() => import('@/pages/farmer/Orders'))
 
 // Logist
 const Planner = lazy(() => import('@/pages/logist/Planner'))
+const LogistWarehouses = lazy(() => import('@/pages/logist/Warehouses'))
 
 // Driver
 const DriverTripList = lazy(() => import('@/pages/driver/TripList'))
@@ -86,6 +87,9 @@ export default function App() {
           {/* Logist */}
           <Route path="/logist/planner" element={
             <RequireAuth roles={['логист', 'администратор']}><Planner /></RequireAuth>
+          } />
+          <Route path="/logist/warehouses" element={
+            <RequireAuth roles={['логист', 'администратор']}><LogistWarehouses /></RequireAuth>
           } />
 
           {/* Driver */}

@@ -17,6 +17,7 @@ class ProductBase(BaseModel):
     image_url: str | None = None
     harvest_date: datetime | None = None
     expiry_date: datetime | None = None
+    warehouse_id: int | None = None
 
 
 class ProductCreate(ProductBase):
@@ -35,11 +36,13 @@ class ProductUpdate(BaseModel):
     image_url: str | None = None
     harvest_date: datetime | None = None
     expiry_date: datetime | None = None
+    warehouse_id: int | None = None
 
 
 class ProductOut(ProductBase):
     id: int
     farmer_id: int
+    warehouse_name: str | None = None
     is_active: bool
     created_at: datetime
     updated_at: datetime

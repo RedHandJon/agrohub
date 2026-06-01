@@ -12,6 +12,8 @@ from app.routers import analytics as analytics_router
 from app.routers import documents as documents_router
 from app.routers import admin as admin_router
 from app.routers import uploads as uploads_router
+from app.routers import warehouses as warehouses_router
+from app.routers import locations as locations_router
 from app.services.scheduler import start_scheduler, stop_scheduler
 
 
@@ -56,6 +58,8 @@ app.include_router(analytics_router.router)
 app.include_router(documents_router.router)
 app.include_router(admin_router.router)
 app.include_router(uploads_router.router)
+app.include_router(warehouses_router.router)
+app.include_router(locations_router.router)
 
 
 @app.get("/api/health")

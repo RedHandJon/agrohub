@@ -18,6 +18,7 @@ const ROLE_NAV: Record<string, { to: string; label: string }[]> = {
   ],
   логист: [
     { to: '/logist/planner', label: 'Планировщик' },
+    { to: '/logist/warehouses', label: 'Склады' },
   ],
   водитель: [
     { to: '/driver/trips', label: 'Мои рейсы' },

@@ -8,6 +8,7 @@ from app.models.trip import Trip, Waypoint, WaypointType, WaypointStatus, TripSt
 from app.models.vehicle import Vehicle
 from app.models.order import Order, OrderItem, OrderStatus
 from app.models.product import Product
+from app.models.warehouse import Warehouse
 from app.models.user import User
 from app.schemas.logistics import (
     PlanRequest, TripOut, WaypointOut, VehicleCreate, VehicleOut,
@@ -71,18 +72,32 @@ async def plan_trips(
 
     # Build order loads
     order_loads = []
+    # Track unique warehouses per order for pickup waypoints
+    order_warehouses: dict[int, list[Warehouse]] = {}
     for order in orders:
         items_result = await db.execute(select(OrderItem).where(OrderItem.order_id == order.id))
         items = items_result.scalars().all()
 
         total_weight = 0.0
         total_volume = 0.0
+        warehouses_for_order: list[Warehouse] = []
+        seen_warehouse_ids: set[int] = set()
         for item in items:
             prod_result = await db.execute(select(Product).where(Product.id == item.product_id))
             product = prod_result.scalar_one_or_none()
             if product:
                 total_weight += float(item.quantity) * float(product.weight_per_unit_kg)
                 total_volume += float(item.quantity) * float(product.volume_per_unit_m3)
+                if product.warehouse_id and product.warehouse_id not in seen_warehouse_ids:
+                    wh_result = await db.execute(
+                        select(Warehouse).where(Warehouse.id == product.warehouse_id)
+                    )
+                    wh = wh_result.scalar_one_or_none()
+                    if wh:
+                        warehouses_for_order.append(wh)
+                        seen_warehouse_ids.add(wh.id)
+
+        order_warehouses[order.id] = warehouses_for_order
 
         # Use depot as pickup, delivery_location as dropoff
         delivery_lat = payload.depot_lat + 0.01  # placeholder if no location
@@ -141,7 +156,33 @@ async def plan_trips(
         db.add(depot_wp)
         seq += 1
 
+        # Unique warehouse pickup waypoints for this route
+        seen_wh_ids: set[int] = set()
+        for oid in route.order_ids:
+            for wh in order_warehouses.get(oid, []):
+                if wh.id not in seen_wh_ids:
+                    pickup_wp = Waypoint(
+                        trip_id=trip.id,
+                        sequence=seq,
+                        waypoint_type=WaypointType.pickup,
+                        lat=wh.lat,
+                        lon=wh.lon,
+                        address=wh.address,
+                    )
+                    db.add(pickup_wp)
+                    seq += 1
+                    seen_wh_ids.add(wh.id)
+
         for wp_data in route.waypoints:
+            # Determine address from delivery location if available
+            order_obj = next((o for o in orders if o.id == wp_data["order_id"]), None)
+            if order_obj and order_obj.delivery_location_id:
+                from app.models.location import Location
+                loc_r = await db.execute(select(Location).where(Location.id == order_obj.delivery_location_id))
+                loc = loc_r.scalar_one_or_none()
+                wp_address = loc.address if loc else f"Заказ #{wp_data['order_id']}"
+            else:
+                wp_address = f"Заказ #{wp_data['order_id']}"
             wp = Waypoint(
                 trip_id=trip.id,
                 order_id=wp_data["order_id"],
@@ -149,7 +190,7 @@ async def plan_trips(
                 waypoint_type=WaypointType(wp_data["type"]),
                 lat=wp_data["lat"],
                 lon=wp_data["lon"],
-                address=f"Заказ #{wp_data['order_id']} - {wp_data['type']}",
+                address=wp_address,
             )
             db.add(wp)
             seq += 1

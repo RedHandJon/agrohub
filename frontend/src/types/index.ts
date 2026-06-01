@@ -25,6 +25,16 @@ export interface AuthResponse extends TokenPair {
 export type ProductCategory = 'овощи' | 'фрукты' | 'зерно' | 'молочное' | 'мясо' | 'зелень' | 'прочее'
 export type ProductUnit = 'кг' | 'тонна' | 'шт' | 'л' | 'ящик'
 
+export interface Warehouse {
+  id: number
+  name: string
+  address: string
+  lat: number
+  lon: number
+  created_by: number
+  created_at: string
+}
+
 export interface Product {
   id: number
   farmer_id: number
@@ -37,6 +47,8 @@ export interface Product {
   min_order_quantity: string
   weight_per_unit_kg: string
   volume_per_unit_m3: string
+  warehouse_id?: number
+  warehouse_name?: string
   is_active: boolean
   image_url?: string
   harvest_date?: string

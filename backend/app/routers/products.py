@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
+from sqlalchemy.orm import selectinload
 from app.core.database import get_db
 from app.core.security import get_current_user, require_roles
 from app.models.product import Product, ProductCategory
@@ -30,7 +31,10 @@ async def list_products(
     total_result = await db.execute(select(func.count()).select_from(query.subquery()))
     total = total_result.scalar()
 
-    query = query.offset((page - 1) * size).limit(size).order_by(Product.created_at.desc())
+    query = (
+        query.offset((page - 1) * size).limit(size).order_by(Product.created_at.desc())
+        .options(selectinload(Product.warehouse))
+    )
     result = await db.execute(query)
     products = result.scalars().all()
 
@@ -39,7 +43,9 @@ async def list_products(
 
 @router.get("/{product_id}", response_model=ProductOut)
 async def get_product(product_id: int, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Product).where(Product.id == product_id))
+    result = await db.execute(
+        select(Product).where(Product.id == product_id).options(selectinload(Product.warehouse))
+    )
     product = result.scalar_one_or_none()
     if not product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Товар не найден")

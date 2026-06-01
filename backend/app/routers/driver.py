@@ -102,3 +102,31 @@ async def complete_waypoint(
     await db.flush()
     await db.refresh(wp)
     return wp
+
+
+@router.post("/trips/{trip_id}/complete", response_model=TripOut)
+async def complete_trip(
+    trip_id: int,
+    current_user: User = Depends(require_roles("водитель")),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Trip).where(Trip.id == trip_id, Trip.driver_id == current_user.id))
+    trip = result.scalar_one_or_none()
+    if not trip:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Рейс не найден")
+    if trip.status != TripStatus.in_progress:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Рейс не в статусе 'В пути'")
+
+    wps_result = await db.execute(
+        select(Waypoint).where(Waypoint.trip_id == trip.id).order_by(Waypoint.sequence)
+    )
+    waypoints = list(wps_result.scalars().all())
+
+    non_terminal = [wp for wp in waypoints if wp.status not in (WaypointStatus.completed, WaypointStatus.skipped)]
+    if non_terminal:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Не все точки подтверждены")
+
+    trip.status = TripStatus.completed
+    await db.flush()
+    trip.waypoints = waypoints
+    return trip
