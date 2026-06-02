@@ -79,7 +79,7 @@ class Settings(BaseSettings):
     MINIO_BUCKET: str = "agrohub"
 
     # External APIs
-    YANDEX_API_KEY: str = ""
+    YANDEX_API_KEY: str = "9a0b5050-70b5-43a3-a1de-bb2fc3a4abdd"
 
     # App
     ENVIRONMENT: str = "development"
