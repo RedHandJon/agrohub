@@ -1,24 +1,13 @@
 import { useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { logisticsApi } from '@/api/logistics'
 import { apiClient } from '@/api/client'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { TripMap } from '@/components/ui/TripMap'
 import type { Trip, TripStatus, Waypoint } from '@/types'
-import 'leaflet/dist/leaflet.css'
-import L from 'leaflet'
-import markerIcon from 'leaflet/dist/images/marker-icon.png'
-import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 import { ArrowLeft, Map } from 'lucide-react'
-
-L.Marker.prototype.options.icon = L.icon({
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-})
 
 const STATUS_LABELS: Record<TripStatus, string> = {
   запланирован: 'Запланирован',
@@ -99,7 +88,7 @@ function SignatureModal({ waypoint, onClose, onConfirm, isPending }: SignatureMo
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1001] p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md space-y-4 p-6">
         <h2 className="font-semibold text-lg">Подпись получателя</h2>
         <p className="text-sm text-gray-500">Попросите клиента расписаться ниже</p>
@@ -219,26 +208,19 @@ function TripDetail({ trip, onBack }: TripDetailProps) {
 
       {/* Map */}
       {mapWaypoints.length > 0 && (
-        <div className="rounded-xl overflow-hidden border shadow-sm" style={{ height: '320px' }}>
-          <MapContainer center={mapCenter} zoom={11} style={{ height: '100%', width: '100%' }}>
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            {routeLine.length > 1 && (
-              <Polyline positions={routeLine} pathOptions={{ color: '#2563eb', weight: 3, opacity: 0.8 }} />
-            )}
-            {mapWaypoints.map((wp) => (
-              <Marker key={wp.id} position={[wp.lat, wp.lon]}>
-                <Popup>
-                  <strong>
-                    {wp.waypoint_type === 'загрузка' ? '📦 Загрузка' :
-                     wp.waypoint_type === 'доставка' ? '🏠 Доставка' : '🏭 Склад'}
-                  </strong><br />
-                  {wp.order_id ? <>Заказ #{wp.order_id}<br /></> : null}
-                  {wp.address}
-                </Popup>
-              </Marker>
-            ))}
-          </MapContainer>
-        </div>
+        <TripMap
+          center={mapCenter}
+          zoom={11}
+          height={320}
+          markers={mapWaypoints.map((wp) => ({
+            lat: wp.lat,
+            lon: wp.lon,
+            label: String(wp.sequence),
+            color: wp.waypoint_type === 'доставка' ? '#16a34a' : wp.waypoint_type === 'загрузка' ? '#ea580c' : '#6b7280',
+            popup: `${wp.waypoint_type === 'загрузка' ? '📦 Загрузка' : wp.waypoint_type === 'доставка' ? '🏠 Доставка' : '🏭 Склад'}${wp.order_id ? ` · Заказ #${wp.order_id}` : ''} — ${wp.address}`,
+          }))}
+          polylines={routeLine.length > 1 ? [{ points: routeLine.map(([lat, lon]) => ({ lat, lon })), color: '#2563eb' }] : []}
+        />
       )}
 
       {/* Waypoints */}

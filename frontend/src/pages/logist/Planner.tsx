@@ -1,25 +1,12 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { ordersApi } from '@/api/orders'
 import { logisticsApi } from '@/api/logistics'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { TripMap } from '@/components/ui/TripMap'
 import type { Order, Trip } from '@/types'
-import 'leaflet/dist/leaflet.css'
-
-// Fix default leaflet marker icons
-import L from 'leaflet'
-import markerIcon from 'leaflet/dist/images/marker-icon.png'
-import markerShadow from 'leaflet/dist/images/marker-shadow.png'
-
-L.Marker.prototype.options.icon = L.icon({
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-})
 
 const DEPOT = { lat: 55.751244, lon: 37.618423, address: 'Москва, склад' }
 
@@ -159,33 +146,25 @@ export default function Planner() {
         </div>
 
         {/* Map */}
-        <div className="rounded-xl overflow-hidden border shadow-sm" style={{ height: '480px' }}>
-          <MapContainer
-            center={[DEPOT.lat, DEPOT.lon]}
-            zoom={11}
-            style={{ height: '100%', width: '100%' }}
-          >
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            <Marker position={[DEPOT.lat, DEPOT.lon]}>
-              <Popup>Склад (депо)</Popup>
-            </Marker>
-            {(selectedTrip ? [selectedTrip] : trips).map((t, idx) => {
-              const pts = t.waypoints.map((wp): [number, number] => [wp.lat, wp.lon])
-              return (
-                <Polyline key={`line-${t.id}`} positions={pts} pathOptions={{ color: tripColor(idx), weight: 3, opacity: 0.7 }} />
-              )
-            })}
-            {waypointsForMap.map((wp) => (
-              <Marker key={wp.id} position={[wp.lat, wp.lon]}>
-                <Popup>
-                  <strong>{wp.waypoint_type}</strong><br />
-                  {wp.order_id ? <>Заказ #{wp.order_id}<br /></> : null}
-                  {wp.address}
-                </Popup>
-              </Marker>
-            ))}
-          </MapContainer>
-        </div>
+        <TripMap
+          center={[DEPOT.lat, DEPOT.lon]}
+          zoom={11}
+          height={480}
+          markers={[
+            { lat: DEPOT.lat, lon: DEPOT.lon, color: '#6b7280', popup: 'Склад (депо)' },
+            ...waypointsForMap.map((wp) => ({
+              lat: wp.lat,
+              lon: wp.lon,
+              label: String(wp.sequence),
+              color: wp.waypoint_type === 'доставка' ? '#16a34a' : wp.waypoint_type === 'загрузка' ? '#ea580c' : '#6b7280',
+              popup: `${wp.waypoint_type}${wp.order_id ? ` · Заказ #${wp.order_id}` : ''} — ${wp.address}`,
+            })),
+          ]}
+          polylines={(selectedTrip ? [selectedTrip] : trips).map((t, idx) => ({
+            points: t.waypoints.map((wp) => ({ lat: wp.lat, lon: wp.lon })),
+            color: tripColor(idx),
+          }))}
+        />
       </div>
     </div>
   )
