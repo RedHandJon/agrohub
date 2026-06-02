@@ -86,7 +86,21 @@ export function TripMap({
   const [mapInstance, setMapInstance] = useState<any>(null)
 
   useEffect(() => {
-    window.ymaps3?.ready.then(() => setApiReady(true))
+    let cancelled = false
+
+    const tryAttach = () => {
+      if (window.ymaps3) {
+        window.ymaps3.ready.then(() => { if (!cancelled) setApiReady(true) })
+        return true
+      }
+      return false
+    }
+
+    if (!tryAttach()) {
+      const id = setInterval(() => { if (tryAttach()) clearInterval(id) }, 150)
+      return () => { cancelled = true; clearInterval(id) }
+    }
+    return () => { cancelled = true }
   }, [])
 
   useEffect(() => {
